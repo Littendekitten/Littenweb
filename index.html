@@ -143,7 +143,7 @@
     // Gradually increase speed over time
     setInterval(() => {
       if (gameStarted && !gameOver) {
-        obstacleSpeed += 0.3;
+        obstacleSpeed += 0.5;
         obstacleSpeed = Math.min(obstacleSpeed, 20); // max speed
       }
     }, 3000); // every 3 seconds
