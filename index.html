@@ -73,7 +73,7 @@
 
     // Jump function
     function jump() {
-      if (jumping || !gameStarted) return;
+      if (jumping || !gameStarted || gameOver) return;
       jumping = true;
       let upInterval = setInterval(() => {
         if (playerBottom >= 120) {
@@ -90,6 +90,19 @@
         playerBottom += 6;
         player.style.bottom = playerBottom + 'px';
       }, 20);
+    }
+
+    // Reset game to initial state
+    function resetGame() {
+      gameOver = false;
+      obstacleSpeed = 6;
+      playerBottom = 0;
+      obstacleRight = 0;
+      player.style.bottom = '0px';
+      obstacle.style.right = '0px';
+      message.textContent = '';
+      jumping = false;
+      moveObstacle();
     }
 
     // Move obstacle function
@@ -117,7 +130,7 @@
           playerBottom < 60
         ) {
           gameOver = true;
-          message.textContent = 'Game Over! Refresh the page to play again.';
+          message.textContent = 'Game Over! Press Space to restart.';
         }
 
         requestAnimationFrame(frame);
@@ -126,18 +139,22 @@
       requestAnimationFrame(frame);
     }
 
-    // Start the game on space key press
+    // Listen for space key to start, jump, or restart
     document.addEventListener('keydown', (e) => {
       if (e.code === 'Space') {
         if (!gameStarted) {
           gameStarted = true;
           message.textContent = '';
           moveObstacle();
+          jump();
+        } else if (gameOver) {
+          resetGame();
+          jump();
+        } else {
+          jump();
         }
-        jump();
       }
     });
-
   </script>
 
 </body>
