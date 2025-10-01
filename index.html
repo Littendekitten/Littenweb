@@ -82,6 +82,8 @@
             if (playerBottom <= 0) {
               clearInterval(downInterval);
               jumping = false;
+              playerBottom = 0;
+              player.style.bottom = '0px';
             }
             playerBottom -= 6;
             player.style.bottom = playerBottom + 'px';
@@ -115,7 +117,6 @@
 
         if (obstacleRight > 800) {
           obstacleRight = 0;
-          obstacleSpeed += 0.3; // increase speed each round
         }
 
         const playerLeft = 50;
@@ -139,7 +140,15 @@
       requestAnimationFrame(frame);
     }
 
-    // Listen for space key to start, jump, or restart
+    // Gradually increase speed over time
+    setInterval(() => {
+      if (gameStarted && !gameOver) {
+        obstacleSpeed += 0.3;
+        obstacleSpeed = Math.min(obstacleSpeed, 20); // max speed
+      }
+    }, 3000); // every 3 seconds
+
+    // Handle space key
     document.addEventListener('keydown', (e) => {
       if (e.code === 'Space') {
         if (!gameStarted) {
