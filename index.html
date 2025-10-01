@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Simple Runner Game</title>
+  <title>Runner Game</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -11,48 +11,56 @@
       background: #f0f0f0;
       user-select: none;
     }
+
     #game {
-      margin-top: 40px;
-      margin-left: auto;
-      margin-right: auto;
-      width: 800px;
-      height: 200px;
+      margin: 30px auto;
+      width: 1200px; /* VEEL groter */
+      height: 400px;  /* VEEL hoger */
       border: 3px solid #333;
       background-color: #fff;
       position: relative;
       overflow: hidden;
     }
+
     #player {
       position: absolute;
       bottom: 0;
-      left: 50px;
+      left: 100px;
       width: 60px;
       height: 60px;
       background-color: #333;
       border-radius: 8px;
     }
+
     #obstacle {
       position: absolute;
       bottom: 0;
       right: 0;
-      width: 30px;
+      width: 40px;
       height: 60px;
-      background-color: #f44336;
+      background-color: #e74c3c;
       border-radius: 4px;
     }
+
     #message {
-      margin-top: 15px;
       font-size: 22px;
       color: #d33;
+      font-weight: bold;
+      margin-top: 10px;
+    }
+
+    #score {
+      font-size: 20px;
+      color: #333;
       font-weight: bold;
     }
   </style>
 </head>
 <body>
 
-  <h1>Welcome to my website!</h1>
-  <p>Here is my awesome runner game:</p>
-
+  <h1>Welcome to my upgraded runner game!</h1>
+  <p>Press <strong>Space</strong> to jump. Avoid the obstacle!</p>
+  <div id="score">Score: 0</div>
   <div id="game">
     <div id="player"></div>
     <div id="obstacle"></div>
@@ -63,51 +71,76 @@
     const player = document.getElementById('player');
     const obstacle = document.getElementById('obstacle');
     const message = document.getElementById('message');
+    const scoreDisplay = document.getElementById('score');
 
     let jumping = false;
     let gameOver = false;
     let gameStarted = false;
     let obstacleSpeed = 6;
     let playerBottom = 0;
+    let velocity = 0;
+    let gravity = -0.5;
+    let jumpPower = 12;
     let obstacleRight = 0;
+    let score = 0;
 
-    // Jump function
+    // Score systeem
+    let scoreInterval = null;
+    function startScoreCounter() {
+      score = 0;
+      scoreDisplay.textContent = 'Score: 0';
+      scoreInterval = setInterval(() => {
+        if (!gameOver) {
+          score++;
+          scoreDisplay.textContent = `Score: ${score}`;
+        }
+      }, 100);
+    }
+
+    function stopScoreCounter() {
+      clearInterval(scoreInterval);
+    }
+
+    // Jump physics
     function jump() {
       if (jumping || !gameStarted || gameOver) return;
       jumping = true;
-      let upInterval = setInterval(() => {
-        if (playerBottom >= 120) {
-          clearInterval(upInterval);
-          let downInterval = setInterval(() => {
-            if (playerBottom <= 0) {
-              clearInterval(downInterval);
-              jumping = false;
-              playerBottom = 0;
-              player.style.bottom = '0px';
-            }
-            playerBottom -= 6;
-            player.style.bottom = playerBottom + 'px';
-          }, 20);
+      velocity = jumpPower;
+    }
+
+    function applyGravity() {
+      setInterval(() => {
+        if (!gameStarted || gameOver) return;
+
+        velocity += gravity;
+        playerBottom += velocity;
+
+        if (playerBottom <= 0) {
+          playerBottom = 0;
+          velocity = 0;
+          jumping = false;
         }
-        playerBottom += 6;
+
         player.style.bottom = playerBottom + 'px';
       }, 20);
     }
 
-    // Reset game to initial state
+    // Reset game
     function resetGame() {
       gameOver = false;
       obstacleSpeed = 6;
       playerBottom = 0;
+      velocity = 0;
       obstacleRight = 0;
       player.style.bottom = '0px';
       obstacle.style.right = '0px';
       message.textContent = '';
       jumping = false;
+      startScoreCounter();
       moveObstacle();
     }
 
-    // Move obstacle function
+    // Move obstacle
     function moveObstacle() {
       function frame() {
         if (!gameStarted || gameOver) return;
@@ -115,22 +148,24 @@
         obstacleRight += obstacleSpeed;
         obstacle.style.right = obstacleRight + 'px';
 
-        if (obstacleRight > 800) {
+        if (obstacleRight > 1200 + 40) {
           obstacleRight = 0;
+          obstacleSpeed += 0.5;
+          obstacleSpeed = Math.min(obstacleSpeed, 25);
         }
 
-        const playerLeft = 50;
+        const playerLeft = 100;
         const playerRight = playerLeft + 60;
-        const obstacleLeft = 800 - obstacleRight;
-        const obstacleRightEdge = obstacleLeft + 30;
+        const obstacleLeft = 1200 - obstacleRight;
+        const obstacleRightEdge = obstacleLeft + 40;
 
-        // Collision detection
         if (
           obstacleLeft < playerRight &&
           obstacleRightEdge > playerLeft &&
           playerBottom < 60
         ) {
           gameOver = true;
+          stopScoreCounter();
           message.textContent = 'Game Over! Press Space to restart.';
         }
 
@@ -140,21 +175,23 @@
       requestAnimationFrame(frame);
     }
 
-    // Gradually increase speed over time
+    // Snelheid opvoeren
     setInterval(() => {
       if (gameStarted && !gameOver) {
-        obstacleSpeed += 0.5;
-        obstacleSpeed = Math.min(obstacleSpeed, 20); // max speed
+        obstacleSpeed += 0.2;
+        obstacleSpeed = Math.min(obstacleSpeed, 25);
       }
-    }, 3000); // every 3 seconds
+    }, 3000);
 
-    // Handle space key
+    // Controls
     document.addEventListener('keydown', (e) => {
       if (e.code === 'Space') {
         if (!gameStarted) {
           gameStarted = true;
           message.textContent = '';
+          startScoreCounter();
           moveObstacle();
+          applyGravity();
           jump();
         } else if (gameOver) {
           resetGame();
