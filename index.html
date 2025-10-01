@@ -1,25 +1,185 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Litten's website</title>
-    <style>
-        body {
-            background: linear-gradient(to right, #ffcc70, #ff8c00);
-            font-family: Arial, sans-serif;
-            color: #333;
-            margin: 0;
-            padding: 0;
-            text-align: center; /* ➜ Zent alle inline/block-elementen zoals <h1> */
-        }
-
-        h1 {
-            margin-top: 40px; /* ruimte vanaf de bovenkant */
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <title>Website met game</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 20px;
+    }
+    #game {
+      margin-top: 40px; /* ruimte tussen tekst en game */
+      margin-left: auto;
+      margin-right: auto;
+      width: 600px;
+      height: 150px;
+      border: 2px solid #333;
+      background: #fff;
+      position: relative;
+      overflow: hidden;
+    }
+    /* Style speler en obstakel hier zoals eerder */
+  </style>
 </head>
 <body>
-    <h1>Welcome to my website!!!</h1>
-    <p>Enjoy!</p>
+  <h1>Welkom op mijn website!</h1>
+  <p>Hier is mijn toffe runner game:</p>
+
+  <div id="game">
+    <!-- game elementen zoals speler en obstakel -->
+    <div id="player"></div>
+    <div id="obstacle"></div>
+  </div>
+
+  <script>
+    // hier komt je game-code
+      <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Runner Game</title>
+  <style>
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: flex-end;
+      height: 300px;
+      margin: 0;
+      background: #f0f0f0;
+      font-family: Arial, sans-serif;
+    }
+    #game {
+      position: relative;
+      width: 600px;
+      height: 150px;
+      background-color: #fff;
+      border: 2px solid #333;
+      overflow: hidden;
+    }
+    #player {
+      position: absolute;
+      bottom: 0;
+      left: 50px;
+      width: 40px;
+      height: 40px;
+      background-color: #333;
+      border-radius: 5px;
+    }
+    #obstacle {
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      width: 20px;
+      height: 40px;
+      background-color: #f44336;
+      border-radius: 3px;
+    }
+    #message {
+      text-align: center;
+      margin-top: 10px;
+      font-size: 20px;
+      color: red;
+    }
+  </style>
+</head>
+<body>
+
+<div>
+  <div id="game">
+    <div id="player"></div>
+    <div id="obstacle"></div>
+  </div>
+  <div id="message"></div>
+</div>
+
+<script>
+  const player = document.getElementById('player');
+  const obstacle = document.getElementById('obstacle');
+  const message = document.getElementById('message');
+
+  let jumping = false;
+  let gameOver = false;
+  let obstacleSpeed = 5;
+  let playerBottom = 0;
+
+  // Spring functie
+  function jump() {
+    if (jumping) return;
+    jumping = true;
+    let upInterval = setInterval(() => {
+      if (playerBottom >= 100) {
+        clearInterval(upInterval);
+        // naar beneden
+        let downInterval = setInterval(() => {
+          if (playerBottom <= 0) {
+            clearInterval(downInterval);
+            jumping = false;
+          }
+          playerBottom -= 5;
+          player.style.bottom = playerBottom + 'px';
+        }, 20);
+      }
+      playerBottom += 5;
+      player.style.bottom = playerBottom + 'px';
+    }, 20);
+  }
+
+  // Obstakel bewegen
+  function moveObstacle() {
+    let obstacleRight = 0;
+
+    function frame() {
+      if (gameOver) return;
+
+      obstacleRight += obstacleSpeed;
+      obstacle.style.right = obstacleRight + 'px';
+
+      // Reset obstakel als hij uit beeld is
+      if (obstacleRight > 600) {
+        obstacleRight = 0;
+        // Versnel de game elke ronde iets
+        obstacleSpeed += 0.2;
+      }
+
+      // Check collision
+      const playerLeft = 50;
+      const playerRight = playerLeft + 40;
+      const playerTop = playerBottom + 40;
+      const obstacleLeft = 600 - obstacleRight;
+      const obstacleRightEdge = obstacleLeft + 20;
+
+      // Check als obstakel binnen bereik is
+      if (
+        obstacleLeft < playerRight &&
+        obstacleRightEdge > playerLeft &&
+        playerBottom < 40 // speler laag = botst
+      ) {
+        gameOver = true;
+        message.textContent = 'Game Over! Refresh om opnieuw te spelen.';
+      }
+
+      requestAnimationFrame(frame);
+    }
+
+    requestAnimationFrame(frame);
+  }
+
+  // Start de game
+  moveObstacle();
+
+  // Luister naar spatie om te springen
+  document.addEventListener('keydown', (e) => {
+    if (e.code === 'Space') {
+      jump();
+    }
+  });
+</script>
+
+</body>
+</html>
+
+  </script>
 </body>
 </html>
