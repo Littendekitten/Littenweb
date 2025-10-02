@@ -17,7 +17,7 @@ tr:nth-child(even) { background-color:#f2f2f2; }
 </head>
 <body>
 <div class="container">
-  <h1>Users Overview (Read Only)</h1>
+  <h1>All Users Data (Read Only)</h1>
   <table id="usersTable">
     <tr><th>Email</th><th>Balance</th><th>Logged in?</th></tr>
   </table>
@@ -26,13 +26,18 @@ tr:nth-child(even) { background-color:#f2f2f2; }
 <script src="datasave.js"></script>
 <script>
 const table = document.getElementById("usersTable");
-for(const email in usersData){
-  const balance = parseInt(localStorage.getItem("balance_" + email)) || usersData[email].balance;
-  const loggedIn = getCurrentUser() === email ? "Yes" : "No";
-  let row = table.insertRow();
-  row.insertCell(0).innerText = email;
-  row.insertCell(1).innerText = balance;
-  row.insertCell(2).innerText = loggedIn;
+for (let i=0; i<localStorage.length; i++){
+  const key = localStorage.key(i);
+  if(key.startsWith("balance_")){
+    const email = key.replace("balance_", "");
+    const balance = parseInt(localStorage.getItem(key));
+    const loggedIn = getCurrentUser() === email ? "Yes" : "No";
+
+    let row = table.insertRow();
+    row.insertCell(0).innerText = email;
+    row.insertCell(1).innerText = balance;
+    row.insertCell(2).innerText = loggedIn;
+  }
 }
 </script>
 </body>
