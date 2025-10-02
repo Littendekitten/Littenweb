@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>KittyCoins Trade</title>
+  <title>KittyCoins - Login</title>
   <style>
     body {
       font-family: 'Comfortaa', sans-serif;
@@ -14,97 +14,88 @@
       height: 100vh;
       margin: 0;
     }
-    .container {
+    .login-box {
       background: #fff;
-      border-radius: 20px;
-      padding: 40px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+      width: 300px;
       text-align: center;
-      max-width: 500px;
-      width: 90%;
     }
     input {
+      width: 100%;
       padding: 10px;
+      margin: 8px 0;
+      border: 1px solid #ccc;
       border-radius: 8px;
-      border: 1px solid #ddd;
-      margin: 5px;
-      width: 80%;
     }
-    .btn {
-      padding: 12px 25px;
+    button {
+      width: 100%;
+      padding: 12px;
       background: linear-gradient(90deg, #307cff, #e254ff);
-      color: #fff;
       border: none;
-      border-radius: 10px;
-      cursor: pointer;
+      color: #fff;
       font-weight: bold;
-      margin-top: 15px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    button:hover {
+      opacity: 0.9;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>Trade KittyCoins</h1>
-    <p>Logged in as: <span id="user-email"></span></p>
-    <p>Your balance is: <span id="balance">0</span> KittyCoins</p>
-
-    <input type="number" id="kittycoin-amount" placeholder="Amount of KittyCoins">
-    <input type="email" id="receiver-email" placeholder="Receiver's email"><br>
-    <button class="btn" onclick="tradeKittyCoins()">Trade</button><br><br>
-    <button class="btn" onclick="logout()">Logout</button>
+  <div class="login-box">
+    <h2>Login to KittyCoins</h2>
+    <input type="email" id="email" placeholder="Email">
+    <input type="password" id="password" placeholder="Password">
+    <button onclick="login()">Login</button>
+    <p>No account yet? <a href="#" onclick="register()">Register</a></p>
   </div>
 
   <script>
-    let balance = 0;
-    const loggedInUser = localStorage.getItem("kittycoins_loggedin");
+    function login() {
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value;
 
-    if (!loggedInUser) {
-      window.location.href = "login.html";
-    } else {
-      document.getElementById("user-email").textContent = loggedInUser;
-      balance = parseInt(localStorage.getItem("balance_" + loggedInUser)) || 0;
-      updatePage();
-    }
-
-    function updatePage() {
-      document.getElementById("balance").textContent = balance;
-      localStorage.setItem("balance_" + loggedInUser, balance);
-    }
-
-    function tradeKittyCoins() {
-      const amountInput = document.getElementById("kittycoin-amount");
-      const emailInput = document.getElementById("receiver-email");
-      const amount = parseInt(amountInput.value);
-      const email = emailInput.value.trim();
-
-      if (isNaN(amount) || amount <= 0) {
-        alert("Enter a valid number of KittyCoins.");
-        return;
-      }
-      if (amount > balance) {
-        alert("Not enough KittyCoins.");
+      if (!email || !password) {
+        alert("Please fill in both email and password.");
         return;
       }
 
-      const emailRegex = /^[^\\s@]+@[^\s@]+\\.[^\s@]+$/;
-      if (!emailRegex.test(email)) {
-        alert("Enter a valid email address.");
+      // Check if user exists
+      const storedPassword = localStorage.getItem("user_" + email);
+      if (storedPassword === password) {
+        localStorage.setItem("kittycoins_loggedin", email);
+
+        // If no balance yet, set default 100
+        if (!localStorage.getItem("balance_" + email)) {
+          localStorage.setItem("balance_" + email, 100);
+        }
+
+        window.location.href = "trade.html";
+      } else {
+        alert("Incorrect login details.");
+      }
+    }
+
+    function register() {
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value;
+
+      if (!email || !password) {
+        alert("Please enter email and password to register.");
         return;
       }
 
-      balance -= amount;
-      updatePage();
+      if (localStorage.getItem("user_" + email)) {
+        alert("Account already exists!");
+        return;
+      }
 
-      const mailtoLink = `mailto:${email}?subject=KittyCoins Transaction&body=Hello,%0A%0AI want to trade ${amount} KittyCoins with you.%0A%0AMy new balance is ${balance} KittyCoins.%0A%0ABest regards!`;
-      window.location.href = mailtoLink;
-
-      amountInput.value = '';
-      emailInput.value = '';
-    }
-
-    function logout() {
-      localStorage.removeItem("kittycoins_loggedin");
-      window.location.href = "login.html";
+      localStorage.setItem("user_" + email, password);
+      localStorage.setItem("balance_" + email, 100); // new users start with 100 coins
+      alert("Account created! You can now log in.");
     }
   </script>
 </body>
