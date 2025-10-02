@@ -1,1 +1,2 @@
 image-config
+Don't delete this file!
