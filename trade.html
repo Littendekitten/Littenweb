@@ -17,14 +17,7 @@ button:hover { opacity:0.9; }
 </head>
 <body>
 
-<div class="container" id="login-section">
-  <h2>Login</h2>
-  <input type="email" id="login-email" placeholder="Email"><br>
-  <input type="password" id="login-password" placeholder="Password"><br>
-  <button onclick="login()">Login</button>
-</div>
-
-<div class="container" id="trade-section" style="display:none;">
+<div class="container" id="trade-section">
   <h1>Welcome to KittyCoins Trading</h1>
   <p>Logged in as: <span id="current-user"></span></p>
   <div class="kittycoin-balance">
@@ -40,32 +33,16 @@ button:hover { opacity:0.9; }
 
 <script src="datasave.js"></script>
 <script>
+// Laat direct de huidige user zien
 function updatePage(){
   const user = getCurrentUser();
+  if(!user){
+    alert("You are not logged in! Go back to the login page.");
+    window.location.href = "index.html"; // stuurt terug naar login
+    return;
+  }
   document.getElementById("current-user").innerText = user;
   document.getElementById("balance").innerText = getBalance(user);
-}
-
-// Login
-function login(){
-  const email = document.getElementById("login-email").value.trim();
-  const password = document.getElementById("login-password").value;
-
-  const result = loginUser(email, password);
-  if(!result.success){ alert(result.error); return; }
-
-  document.getElementById("login-section").style.display = "none";
-  document.getElementById("trade-section").style.display = "block";
-  updatePage();
-}
-
-// Logout
-function logout(){
-  logoutUser();
-  document.getElementById("trade-section").style.display = "none";
-  document.getElementById("login-section").style.display = "block";
-  document.getElementById("login-email").value = "";
-  document.getElementById("login-password").value = "";
 }
 
 // Trade
@@ -82,6 +59,15 @@ function sendTrade(){
   document.getElementById("trade-amount").value = "";
   document.getElementById("trade-email").value = "";
 }
+
+// Logout
+function logout(){
+  logoutUser();
+  window.location.href = "index.html"; // terug naar login
+}
+
+// Init
+updatePage();
 </script>
 
 </body>
