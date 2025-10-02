@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KittyCoins via Gmail</title>
+    <title>Trade KittyCoins</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@300..700&display=swap" rel="stylesheet">
@@ -56,17 +56,17 @@
 </head>
 <body>
     <div class="container">
-        <h1>KittyCoins Trading via Gmail</h1>
-        <p>Stuur een e-mail om KittyCoins te verhandelen!</p>
+        <h1>Trade KittyCoins through mail</h1>
+        <p>Send an email to trade KittyCoins!</p>
 
         <div class="kittycoin-balance">
-            <p><strong>Jouw KittyCoins saldo:</strong> <span id="balance">100</span> KittyCoins</p>
+            <p><strong>Your balance is:</strong> <span id="balance">100</span> KittyCoins</p>
         </div>
 
         <div class="trade-form">
-            <input type="number" id="kittycoin-amount" placeholder="Aantal KittyCoins om te verhandelen" />
-            <input type="email" id="receiver-email" placeholder="Ontvanger's Gmail" />
-            <button class="btn" onclick="tradeKittyCoins()">Verhandel via Gmail</button>
+            <input type="number" id="kittycoin-amount" placeholder="Number of KittyCoins to trade" />
+            <input type="email" id="receiver-email" placeholder="User's mail" />
+            <button class="btn" onclick="tradeKittyCoins()">Trade KittyCoins through mail</button>
         </div>
     </div>
 
@@ -84,17 +84,17 @@
             const receiverEmail = document.getElementById("receiver-email").value;
             
             if (isNaN(amount) || amount <= 0) {
-                alert("Voer een geldig aantal KittyCoins in.");
+                alert("Use a valid number of KittyCoins");
                 return;
             }
 
             if (amount > balance) {
-                alert("Je hebt niet genoeg KittyCoins.");
+                alert("You don't have enough KittyCoins");
                 return;
             }
 
             if (!receiverEmail) {
-                alert("Voer een geldig e-mailadres in.");
+                alert("Use a valid email-adress");
                 return;
             }
 
@@ -102,7 +102,7 @@
             balance -= amount;
 
             // Maak een mailto-link aan met de details van de transactie
-            const mailtoLink = `mailto:${receiverEmail}?subject=KittyCoins Transactie&body=Hallo,%0A%0AGraag wil ik ${amount} KittyCoins naar je overdragen.%0A%0AMijn nieuwe saldo is ${balance} KittyCoins.%0A%0AVriendelijke groeten!`;
+            const mailtoLink = `mailto:${receiverEmail}?subject=KittyCoins Transactie&body=Hello,%0A%0AI want to trade ${amount} KittyCoins with you.%0A%0AMy new saldo is ${balance} KittyCoins.%0A%0AKind regards,`;
             
             // Open de e-mailclient met de juiste inhoud
             window.location.href = mailtoLink;
