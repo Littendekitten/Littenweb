@@ -1,1 +1,131 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KittyCoins Betaalsysteem</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f8ff;
+            color: #333;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+        }
 
+        .container {
+            width: 60%;
+            margin: 20px auto;
+            padding: 20px;
+            border-radius: 8px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #ff69b4;
+        }
+
+        .kittycoin-balance {
+            font-size: 24px;
+            margin: 20px 0;
+        }
+
+        .transaction-input {
+            margin-top: 20px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            background-color: #ff69b4;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .btn:hover {
+            background-color: #ff1493;
+        }
+
+        .history {
+            margin-top: 40px;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            max-height: 300px;
+            overflow-y: scroll;
+        }
+
+        .history-item {
+            margin: 10px 0;
+            padding: 8px;
+            background-color: #ffe4e1;
+            border-radius: 4px;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Welkom bij KittyCoins</h1>
+        <p>Bekijk en beheer je KittyCoins hier!</p>
+
+        <div class="kittycoin-balance">
+            <p><strong>Jouw KittyCoins saldo:</strong> <span id="balance">100</span> KittyCoins</p>
+        </div>
+
+        <div class="transaction-input">
+            <input type="number" id="kittycoin-amount" placeholder="Voer het aantal KittyCoins in" />
+            <button class="btn" onclick="sendKittyCoins()">Betalen</button>
+        </div>
+
+        <div class="history">
+            <h3>Transactiegeschiedenis</h3>
+            <div id="history-list"></div>
+        </div>
+    </div>
+
+    <script>
+        // Beginbalans van de KittyCoins
+        let balance = 100;  
+        let history = [];  // Array voor de transactiegeschiedenis
+
+        // Update de pagina met het huidige saldo en de transactiegeschiedenis
+        function updatePage() {
+            document.getElementById("balance").textContent = balance;
+            const historyList = document.getElementById("history-list");
+            historyList.innerHTML = ''; // Leeg de lijst voordat we nieuwe items toevoegen
+            history.forEach((transaction, index) => {
+                const transactionItem = document.createElement("div");
+                transactionItem.classList.add("history-item");
+                transactionItem.textContent = `Transactie ${index + 1}: ${transaction} KittyCoins`;
+                historyList.appendChild(transactionItem);
+            });
+        }
+
+        // Functie om KittyCoins te versturen
+        function sendKittyCoins() {
+            const amount = parseInt(document.getElementById("kittycoin-amount").value);
+            if (isNaN(amount) || amount <= 0) {
+                alert("Voer een geldig aantal KittyCoins in.");
+                return;
+            }
+            if (amount > balance) {
+                alert("Je hebt niet genoeg KittyCoins.");
+                return;
+            }
+
+            balance -= amount;  // Verminder het saldo
+            history.push(-amount);  // Voeg een negatieve transactie toe aan de geschiedenis
+            updatePage();  // Werk de pagina bij
+        }
+
+        // Initieer de pagina
+        updatePage();
+    </script>
+</body>
+</html>
