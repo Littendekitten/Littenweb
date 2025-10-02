@@ -2,60 +2,119 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>KittyCoins Trading</title>
+  <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@300..700&display=swap" rel="stylesheet">
   <style>
-    body { font-family: Arial, sans-serif; background: #e9f7ff; text-align: center; padding-top: 50px; }
-    .box { background: white; padding: 20px; border-radius: 10px; display: inline-block; box-shadow: 0 0 10px rgba(0,0,0,0.2); }
-    input { margin: 10px; padding: 10px; width: 200px; }
-    button { padding: 10px 20px; margin-top: 10px; }
+    body {
+      font-family: 'Comfortaa', sans-serif;
+      background: linear-gradient(135deg, #307cff 0%, #e254ff 100%);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+    }
+
+    .container {
+      background: #fff;
+      border-radius: 20px;
+      padding: 40px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+      text-align: center;
+      width: 400px;
+    }
+
+    h1, h2 {
+      color: #333;
+    }
+
+    input {
+      width: 80%;
+      padding: 12px;
+      margin: 10px 0;
+      border-radius: 10px;
+      border: 1px solid #ddd;
+      font-size: 16px;
+      text-align: center;
+    }
+
+    .btn, #logoutBtn {
+      width: 85%;
+      padding: 12px;
+      margin-top: 15px;
+      background: linear-gradient(90deg, #307cff, #e254ff);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .btn:hover, #logoutBtn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 15px rgba(0,0,0,0.3);
+    }
+
+    #logoutBtn {
+      background: #ff4d4d;
+      margin-top: 20px;
+    }
+
+    p {
+      margin-top: 10px;
+      color: #666;
+    }
   </style>
 </head>
 <body>
-  <div class="box">
+  <div class="container">
     <h1>Welcome to KittyCoins Trading</h1>
     <p id="welcome"></p>
     <p>Your balance is: <b id="balance">0</b> KittyCoins</p>
 
-    <h2>Trade KittyCoins through Email</h2>
+    <h2>Trade KittyCoins via Email</h2>
     <form onsubmit="trade(event)">
       <input type="email" id="toEmail" placeholder="Recipient's Email" required><br>
       <input type="number" id="amount" placeholder="Amount of KittyCoins" min="1" required><br>
-      <button type="submit">Send KittyCoins</button>
+      <button class="btn" type="submit">Send KittyCoins</button>
     </form>
-    <p id="message" style="color:green;"></p>
+    <p id="message"></p>
+
+    <button id="logoutBtn" onclick="logout()">Logout</button>
   </div>
 
   <script>
-    // check login
     let user = localStorage.getItem("kittyUser");
-    let coins = localStorage.getItem("kittyCoins");
+    if (!user) window.location.href = "index.html";
 
-    if (!user) {
-      window.location.href = "index.html";
-    }
-
+    let balance = parseInt(localStorage.getItem("balance_" + user)) || 0;
     document.getElementById("welcome").innerText = "Logged in as: " + user;
-    document.getElementById("balance").innerText = coins;
+    document.getElementById("balance").innerText = balance;
 
     function trade(event) {
       event.preventDefault();
       let toEmail = document.getElementById("toEmail").value;
       let amount = parseInt(document.getElementById("amount").value);
 
-      let currentCoins = parseInt(localStorage.getItem("kittyCoins"));
-
-      if (amount > currentCoins) {
+      if (amount > balance) {
         document.getElementById("message").style.color = "red";
         document.getElementById("message").innerText = "Not enough KittyCoins!";
         return;
       }
 
-      currentCoins -= amount;
-      localStorage.setItem("kittyCoins", currentCoins);
-      document.getElementById("balance").innerText = currentCoins;
-
+      balance -= amount;
+      localStorage.setItem("balance_" + user, balance);
+      document.getElementById("balance").innerText = balance;
       document.getElementById("message").style.color = "green";
-      document.getElementById("message").innerText = "Successfully sent " + amount + " KittyCoins to " + toEmail + "!";
+      document.getElementById("message").innerText = "Sent " + amount + " KittyCoins to " + toEmail + "!";
+    }
+
+    function logout() {
+      localStorage.removeItem("kittyUser");
+      window.location.href = "index.html";
     }
   </script>
 </body>
