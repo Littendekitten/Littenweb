@@ -1,259 +1,64 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Runner Game</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <style>
-    * {
-      box-sizing: border-box;
-    }
-
-    body {
-      font-family: Arial, sans-serif;
-      text-align: center;
-      margin: 0;
-      padding: 0;
-      background: #f0f0f0;
-      user-select: none;
-    }
-
-    h1, p {
-      margin-top: 20px;
-    }
-
-    #score {
-      font-size: 20px;
-      color: #333;
-      font-weight: bold;
-      margin-top: 10px;
-    }
-
-    #game {
-      margin: 20px auto;
-      width: 90vw;
-      max-width: 1200px;
-      height: 35vh;
-      max-height: 400px;
-      border: 3px solid #333;
-      background-color: #fff;
-      position: relative;
-      overflow: hidden;
-    }
-
-    #player {
-      position: absolute;
-      bottom: 0;
-      left: 10%;
-      width: 6vw;
-      height: 6vw;
-      max-width: 60px;
-      max-height: 60px;
-      background-color: #333;
-      border-radius: 8px;
-    }
-
-    #obstacle {
-      position: absolute;
-      bottom: 0;
-      right: 0;
-      width: 4vw;
-      height: 6vw;
-      max-width: 40px;
-      max-height: 60px;
-      background-color: #e74c3c;
-      border-radius: 4px;
-    }
-
-    #message {
-      font-size: 20px;
-      color: #d33;
-      font-weight: bold;
-      margin-top: 10px;
-    }
-
-    #jumpBtn {
-      display: none;
-      margin: 20px auto;
-      padding: 15px 30px;
-      font-size: 18px;
-      background-color: #333;
-      color: #fff;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-    }
-
-    /* Mobiel: toon knop */
-    @media (max-width: 768px) {
-      #jumpBtn {
-        display: block;
-      }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kittycoins Exchange</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+    <header>
+        <h1>Welcome to Kittycoins Exchange</h1>
+        <nav>
+            <ul>
+                <li><a href="#home">Home</a></li>
+                <li><a href="#trade">Trade Kittycoins</a></li>
+                <li><a href="#about">About</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+        </nav>
+    </header>
 
-  <h1>Welcome to my mobile-friendly runner game!</h1>
-  <p>Press <strong>Space</strong> or tap to jump. Avoid the obstacle!</p>
-  <div id="score">Score: 0</div>
+    <main>
+        <section id="home">
+            <h2>What are Kittycoins?</h2>
+            <p>Kittycoins are a virtual currency used in our exclusive digital marketplace. Trade Kittycoins easily and securely!</p>
+        </section>
 
-  <div id="game">
-    <div id="player"></div>
-    <div id="obstacle"></div>
-  </div>
+        <section id="trade">
+            <h2>Trade Kittycoins</h2>
+            <form id="tradeForm">
+                <label for="email">Your Email:</label>
+                <input type="email" id="email" name="email" required><br>
 
-  <div id="message">Press Space or Tap Jump to start</div>
-  <button id="jumpBtn">JUMP</button>
+                <label for="coinsAmount">Amount of Kittycoins:</label>
+                <input type="number" id="coinsAmount" name="coinsAmount" min="1" required><br>
 
-  <script>
-    const player = document.getElementById('player');
-    const obstacle = document.getElementById('obstacle');
-    const message = document.getElementById('message');
-    const scoreDisplay = document.getElementById('score');
-    const jumpBtn = document.getElementById('jumpBtn');
+                <label for="action">Choose Action:</label>
+                <select id="action" name="action">
+                    <option value="buy">Buy Kittycoins</option>
+                    <option value="sell">Sell Kittycoins</option>
+                </select><br>
 
-    let jumping = false;
-    let gameOver = false;
-    let gameStarted = false;
-    let obstacleSpeed = 6;
-    let playerBottom = 0;
-    let velocity = 0;
-    let gravity = -0.5;
-    let jumpPower = 12;
-    let obstacleRight = 0;
-    let score = 0;
-    let scoreInterval = null;
+                <button type="submit">Submit</button>
+            </form>
+        </section>
 
-    function startScoreCounter() {
-      score = 0;
-      scoreDisplay.textContent = 'Score: 0';
-      scoreInterval = setInterval(() => {
-        if (!gameOver) {
-          score++;
-          scoreDisplay.textContent = `Score: ${score}`;
-        }
-      }, 100);
-    }
+        <section id="about">
+            <h2>About Kittycoins</h2>
+            <p>Kittycoins are a fun and secure way to trade digital assets. You can buy and sell Kittycoins anytime using your email for easy tracking.</p>
+        </section>
 
-    function stopScoreCounter() {
-      clearInterval(scoreInterval);
-    }
+        <section id="contact">
+            <h2>Contact Us</h2>
+            <p>If you have any questions, feel free to email us at support@kittycoins.com.</p>
+        </section>
+    </main>
 
-    function jump() {
-      if (jumping || !gameStarted || gameOver) return;
-      jumping = true;
-      velocity = jumpPower;
-    }
+    <footer>
+        <p>&copy; 2025 Kittycoins. All Rights Reserved.</p>
+    </footer>
 
-    function applyGravity() {
-      setInterval(() => {
-        if (!gameStarted || gameOver) return;
-
-        velocity += gravity;
-        playerBottom += velocity;
-
-        if (playerBottom <= 0) {
-          playerBottom = 0;
-          velocity = 0;
-          jumping = false;
-        }
-
-        player.style.bottom = playerBottom + 'px';
-      }, 20);
-    }
-
-    function resetGame() {
-      gameOver = false;
-      obstacleSpeed = 6;
-      playerBottom = 0;
-      velocity = 0;
-      obstacleRight = 0;
-      player.style.bottom = '0px';
-      obstacle.style.right = '0px';
-      message.textContent = '';
-      jumping = false;
-      startScoreCounter();
-      moveObstacle();
-    }
-
-    function moveObstacle() {
-      function frame() {
-        if (!gameStarted || gameOver) return;
-
-        obstacleRight += obstacleSpeed;
-        obstacle.style.right = obstacleRight + 'px';
-
-        const gameWidth = document.getElementById('game').offsetWidth;
-        if (obstacleRight > gameWidth + 50) {
-          obstacleRight = 0;
-          obstacleSpeed += 0.5;
-          obstacleSpeed = Math.min(obstacleSpeed, 25);
-        }
-
-        const playerLeft = player.offsetLeft;
-        const playerRight = playerLeft + player.offsetWidth;
-        const obstacleLeft = gameWidth - obstacleRight;
-        const obstacleRightEdge = obstacleLeft + obstacle.offsetWidth;
-
-        if (
-          obstacleLeft < playerRight &&
-          obstacleRightEdge > playerLeft &&
-          playerBottom < obstacle.offsetHeight
-        ) {
-          gameOver = true;
-          stopScoreCounter();
-          message.textContent = 'Game Over! Tap or Press Space to restart.';
-        }
-
-        requestAnimationFrame(frame);
-      }
-
-      requestAnimationFrame(frame);
-    }
-
-    // Snelheid opvoeren
-    setInterval(() => {
-      if (gameStarted && !gameOver) {
-        obstacleSpeed += 0.2;
-        obstacleSpeed = Math.min(obstacleSpeed, 25);
-      }
-    }, 3000);
-
-    function handleInput() {
-      if (!gameStarted) {
-        gameStarted = true;
-        message.textContent = '';
-        startScoreCounter();
-        moveObstacle();
-        applyGravity();
-        jump();
-      } else if (gameOver) {
-        resetGame();
-        jump();
-      } else {
-        jump();
-      }
-    }
-
-    // Controls: Spacebar
-    document.addEventListener('keydown', (e) => {
-      if (e.code === 'Space') {
-        handleInput();
-      }
-    });
-
-    // Controls: Click / Tap anywhere
-    document.addEventListener('click', () => {
-      handleInput();
-    });
-
-    // Controls: Dedicated Jump Button (mobile)
-    jumpBtn.addEventListener('click', (e) => {
-      e.stopPropagation(); // prevent double-trigger
-      handleInput();
-    });
-  </script>
-
+    <script src="script.js"></script>
 </body>
 </html>
