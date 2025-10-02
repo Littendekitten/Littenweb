@@ -1,131 +1,58 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>KittyCoins Login</title>
-  <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@300..700&display=swap" rel="stylesheet">
-  <style>
-    body {
-      font-family: 'Comfortaa', sans-serif;
-      background: linear-gradient(135deg, #307cff 0%, #e254ff 100%);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      margin: 0;
-    }
-
-    .login-box {
-      background: #fff;
-      border-radius: 20px;
-      padding: 40px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-      text-align: center;
-      width: 350px;
-    }
-
-    h1 {
-      margin-bottom: 20px;
-      font-size: 28px;
-      color: #333;
-    }
-
-    input {
-      width: 90%;
-      padding: 12px;
-      margin: 10px 0;
-      border-radius: 10px;
-      border: 1px solid #ddd;
-      font-size: 16px;
-      text-align: center;
-    }
-
-    .btn {
-      width: 95%;
-      padding: 12px;
-      margin-top: 15px;
-      background: linear-gradient(90deg, #307cff, #e254ff);
-      color: #fff;
-      border: none;
-      border-radius: 10px;
-      font-weight: bold;
-      cursor: pointer;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-      transition: transform 0.2s, box-shadow 0.2s;
-    }
-
-    .btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 15px rgba(0,0,0,0.3);
-    }
-
-    p {
-      margin-top: 15px;
-      color: #666;
-    }
-
-    p a {
-      color: #307cff;
-      text-decoration: none;
-      font-weight: bold;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KittyCoins Login</title>
+<link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@300..700&display=swap" rel="stylesheet">
+<style>
+/* zelfde fancy styling als eerder */
+body { font-family: 'Comfortaa', sans-serif; background: linear-gradient(135deg,#307cff 0%,#e254ff 100%); display:flex; justify-content:center; align-items:center; min-height:100vh; margin:0; }
+.login-box { background:#fff; border-radius:20px; padding:40px; box-shadow:0 10px 30px rgba(0,0,0,0.3); text-align:center; width:350px; }
+h1 { margin-bottom:20px; font-size:28px; color:#333; }
+input { width:90%; padding:12px; margin:10px 0; border-radius:10px; border:1px solid #ddd; font-size:16px; text-align:center; }
+.btn { width:95%; padding:12px; margin-top:15px; background:linear-gradient(90deg,#307cff,#e254ff); color:#fff; border:none; border-radius:10px; font-weight:bold; cursor:pointer; box-shadow:0 4px 10px rgba(0,0,0,0.2); transition:transform 0.2s,box-shadow 0.2s; }
+.btn:hover { transform:translateY(-2px); box-shadow:0 6px 15px rgba(0,0,0,0.3); }
+p { margin-top:15px; color:#666; }
+p a { color:#307cff; text-decoration:none; font-weight:bold; }
+</style>
 </head>
 <body>
-  <div class="login-box">
-    <h1>Login to KittyCoins</h1>
-    <form onsubmit="login(event)">
-      <input type="email" id="email" placeholder="Email" required><br>
-      <input type="password" id="password" placeholder="Password" required><br>
-      <button class="btn" type="submit">Login</button>
-    </form>
-    <p id="error" style="color:red;"></p>
-    <p>No account yet? <a href="#" onclick="register()">Register</a></p>
-  </div>
+<div class="login-box">
+  <h1>Login to KittyCoins</h1>
+  <form id="loginForm">
+    <input type="email" id="email" placeholder="Email" required><br>
+    <input type="password" id="password" placeholder="Password" required><br>
+    <button class="btn" type="submit">Login</button>
+  </form>
+  <p id="error" style="color:red;"></p>
+  <p>No account yet? <a href="#" id="registerLink">Register</a></p>
+</div>
 
-  <script>
-    function login(event) {
-      event.preventDefault();
-      let email = document.getElementById("email").value.trim();
-      let password = document.getElementById("password").value;
+<script src="datasave.js"></script>
+<script>
+document.getElementById("loginForm").addEventListener("submit", function(e){
+  e.preventDefault();
+  let email = document.getElementById("email").value.trim();
+  let password = document.getElementById("password").value;
+  let result = loginUser(email, password);
+  if(result.success){
+    window.location.href = "trade.html";
+  } else {
+    document.getElementById("error").innerText = result.error;
+  }
+});
 
-      if (!email || !password) {
-        document.getElementById("error").innerText = "Please fill in both fields.";
-        return;
-      }
-
-      let storedPassword = localStorage.getItem("user_" + email);
-
-      if (storedPassword === password) {
-        localStorage.setItem("kittyUser", email);
-        if (!localStorage.getItem("balance_" + email)) {
-          localStorage.setItem("balance_" + email, 100);
-        }
-        window.location.href = "trade.html";
-      } else {
-        document.getElementById("error").innerText = "Incorrect email or password!";
-      }
-    }
-
-    function register() {
-      let email = document.getElementById("email").value.trim();
-      let password = document.getElementById("password").value;
-
-      if (!email || !password) {
-        alert("Please fill in email and password to register.");
-        return;
-      }
-
-      if (localStorage.getItem("user_" + email)) {
-        alert("Account already exists!");
-        return;
-      }
-
-      localStorage.setItem("user_" + email, password);
-      localStorage.setItem("balance_" + email, 100);
-      alert("Account created! You can now log in.");
-    }
-  </script>
+document.getElementById("registerLink").addEventListener("click", function(){
+  let email = document.getElementById("email").value.trim();
+  let password = document.getElementById("password").value;
+  let result = registerUser(email, password);
+  if(result.success){
+    alert("Account created! You can now log in.");
+  } else {
+    alert(result.error);
+  }
+});
+</script>
 </body>
 </html>
