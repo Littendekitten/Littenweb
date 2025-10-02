@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KittyCoins Trade</title>
+  <style>
+    body {
+      font-family: 'Comfortaa', sans-serif;
+      background: linear-gradient(135deg, #307cff 0%, #e254ff 100%);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .container {
+      background: #fff;
+      border-radius: 20px;
+      padding: 40px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+      text-align: center;
+      max-width: 500px;
+      width: 90%;
+    }
+    input {
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #ddd;
+      margin: 5px;
+      width: 80%;
+    }
+    .btn {
+      padding: 12px 25px;
+      background: linear-gradient(90deg, #307cff, #e254ff);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: bold;
+      margin-top: 15px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Trade KittyCoins</h1>
+    <p>Logged in as: <span id="user-email"></span></p>
+    <p>Your balance is: <span id="balance">0</span> KittyCoins</p>
+
+    <input type="number" id="kittycoin-amount" placeholder="Amount of KittyCoins">
+    <input type="email" id="receiver-email" placeholder="Receiver's email"><br>
+    <button class="btn" onclick="tradeKittyCoins()">Trade</button><br><br>
+    <button class="btn" onclick="logout()">Logout</button>
+  </div>
+
+  <script>
+    let balance = 0;
+    const loggedInUser = localStorage.getItem("kittycoins_loggedin");
+
+    if (!loggedInUser) {
+      window.location.href = "login.html";
+    } else {
+      document.getElementById("user-email").textContent = loggedInUser;
+      balance = parseInt(localStorage.getItem("balance_" + loggedInUser)) || 0;
+      updatePage();
+    }
+
+    function updatePage() {
+      document.getElementById("balance").textContent = balance;
+      localStorage.setItem("balance_" + loggedInUser, balance);
+    }
+
+    function tradeKittyCoins() {
+      const amountInput = document.getElementById("kittycoin-amount");
+      const emailInput = document.getElementById("receiver-email");
+      const amount = parseInt(amountInput.value);
+      const email = emailInput.value.trim();
+
+      if (isNaN(amount) || amount <= 0) {
+        alert("Enter a valid number of KittyCoins.");
+        return;
+      }
+      if (amount > balance) {
+        alert("Not enough KittyCoins.");
+        return;
+      }
+
+      const emailRegex = /^[^\\s@]+@[^\s@]+\\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        alert("Enter a valid email address.");
+        return;
+      }
+
+      balance -= amount;
+      updatePage();
+
+      const mailtoLink = `mailto:${email}?subject=KittyCoins Transaction&body=Hello,%0A%0AI want to trade ${amount} KittyCoins with you.%0A%0AMy new balance is ${balance} KittyCoins.%0A%0ABest regards!`;
+      window.location.href = mailtoLink;
+
+      amountInput.value = '';
+      emailInput.value = '';
+    }
+
+    function logout() {
+      localStorage.removeItem("kittycoins_loggedin");
+      window.location.href = "login.html";
+    }
+  </script>
+</body>
+</html>
