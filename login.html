@@ -4,8 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>KittyCoins Trade</title>
-  <!-- Google Login SDK -->
-  <script src="https://accounts.google.com/gsi/client" async defer></script>
   <style>
     body {
       font-family: 'Comfortaa', sans-serif;
@@ -25,7 +23,6 @@
       text-align: center;
       max-width: 500px;
       width: 90%;
-      display: none; /* pas zichtbaar na login */
     }
     h1 { margin-bottom: 10px; }
     .kittycoin-balance {
@@ -54,32 +51,9 @@
       font-weight: bold;
       margin-top: 15px;
     }
-    #login-section {
-      text-align: center;
-    }
   </style>
 </head>
 <body>
-  
-  <!-- Login sectie -->
-  <div id="login-section">
-    <h2>Login met Google om verder te gaan</h2>
-    <div id="g_id_onload"
-         data-client_id="YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com"
-         data-callback="onLoginSuccess"
-         data-auto_prompt="false">
-    </div>
-    <div class="g_id_signin"
-         data-type="standard"
-         data-shape="rectangular"
-         data-theme="outline"
-         data-text="signin_with"
-         data-size="large"
-         data-logo_alignment="left">
-    </div>
-  </div>
-
-  <!-- KittyCoin trade sectie -->
   <div class="container" id="trade-section">
     <h1>Trade KittyCoins through mail</h1>
     <p>Send an email to trade KittyCoins!</p>
@@ -137,11 +111,10 @@
       emailInput.value = '';
     }
 
-    // Google login callback
-    function onLoginSuccess(response) {
-      // In een echte app decode je hier de token
-      document.getElementById("login-section").style.display = "none";
-      document.getElementById("trade-section").style.display = "block";
+    // Check of de user is ingelogd
+    if (localStorage.getItem("kittycoins_loggedin") !== "true") {
+      window.location.href = "login.html";
+    } else {
       updatePage();
     }
   </script>
