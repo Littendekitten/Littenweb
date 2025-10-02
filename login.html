@@ -1,1 +1,149 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KittyCoins Trade with Google Login</title>
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <style>
+    body {
+      font-family: 'Comfortaa', sans-serif;
+      background: linear-gradient(135deg, #307cff 0%, #e254ff 100%);
+      color: #333;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+    }
+    .container {
+      background: #fff;
+      border-radius: 20px;
+      padding: 40px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+      text-align: center;
+      max-width: 500px;
+      width: 90%;
+      display: none; /* Verborgen tot login */
+    }
+    h1 { margin-bottom: 10px; }
+    .kittycoin-balance {
+      font-size: 24px;
+      margin: 20px 0;
+    }
+    .input-group {
+      display: flex;
+      gap: 10px;
+      margin: 20px 0;
+    }
+    input {
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #ddd;
+      flex: 1;
+      text-align: center;
+    }
+    .btn {
+      padding: 12px 25px;
+      background: linear-gradient(90deg, #307cff, #e254ff);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: bold;
+      margin-top: 15px;
+    }
+    #login-section {
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  
+  <!-- Login sectie -->
+  <div id="login-section">
+    <h2>Login met Google om verder te gaan</h2>
+    <div id="g_id_onload"
+         data-client_id="YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com"
+         data-context="signin"
+         data-callback="onLoginSuccess"
+         data-auto_prompt="false">
+    </div>
+    <div class="g_id_signin" 
+         data-type="standard" 
+         data-shape="rectangular" 
+         data-theme="outline" 
+         data-text="signin_with" 
+         data-size="large" 
+         data-logo_alignment="left">
+    </div>
+  </div>
 
+  <!-- KittyCoin trade sectie -->
+  <div class="container" id="trade-section">
+    <h1>Trade KittyCoins through mail</h1>
+    <p>Send an email to trade KittyCoins!</p>
+
+    <div class="kittycoin-balance">
+      Your balance is: <span id="balance">100</span> KittyCoins
+    </div>
+
+    <div class="input-group">
+      <input type="number" id="kittycoin-amount" placeholder="Amount of KittyCoins">
+      <input type="email" id="receiver-email" placeholder="User's email">
+    </div>
+    
+    <button class="btn" onclick="tradeKittyCoins()">Trade KittyCoins</button>
+  </div>
+
+  <script>
+    let balance = 100;
+
+    function updatePage() {
+      document.getElementById("balance").textContent = balance;
+    }
+
+    function tradeKittyCoins() {
+      const amountInput = document.getElementById("kittycoin-amount");
+      const emailInput = document.getElementById("receiver-email");
+      const amount = parseInt(amountInput.value);
+      const email = emailInput.value.trim();
+
+      if (isNaN(amount) || amount <= 0) {
+        alert("Enter a valid number of KittyCoins.");
+        return;
+      }
+      if (amount > balance) {
+        alert("Not enough KittyCoins.");
+        return;
+      }
+      if (balance - amount < 0) {
+        alert("Balance cannot go below 0.");
+        return;
+      }
+      const emailRegex = /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/;
+      if (!emailRegex.test(email)) {
+        alert("Enter a valid email address.");
+        return;
+      }
+
+      balance -= amount;
+      updatePage();
+
+      const mailtoLink = `mailto:${email}?subject=KittyCoins Transaction&body=Hello,%0A%0AI want to trade ${amount} KittyCoins with you.%0A%0AMy new balance is ${balance} KittyCoins.%0A%0AGreetings!`;
+      window.location.href = mailtoLink;
+
+      amountInput.value = '';
+      emailInput.value = '';
+    }
+
+    // Google login callback
+    function onLoginSuccess(response) {
+      // Normaal decode je JWT token, maar voor demo laten we direct doorgaan
+      document.getElementById("login-section").style.display = "none";
+      document.getElementById("trade-section").style.display = "block";
+      updatePage();
+    }
+  </script>
+</body>
+</html>
