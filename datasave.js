@@ -2,8 +2,7 @@
 // USERS DATA - Edit here for default accounts
 // --------------------
 const usersData = {
-  "littendekitten@gmail.com": { password: "1234", balance: 0 },
-  "otheruser@example.com": { password: "abcd", balance: 50 }
+  "littendekitten@gmail.com": { password: "Poepje.123", balance: 100 },
 };
 
 // Login function
