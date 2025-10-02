@@ -96,20 +96,41 @@
 
     function trade(event) {
       event.preventDefault();
-      let toEmail = document.getElementById("toEmail").value;
+      let toEmail = document.getElementById("toEmail").value.trim();
       let amount = parseInt(document.getElementById("amount").value);
 
-      if (amount > balance) {
+      // Check minimum amount
+      if (amount < 1) {
         document.getElementById("message").style.color = "red";
-        document.getElementById("message").innerText = "Not enough KittyCoins!";
+        document.getElementById("message").innerText = "Amount must be at least 1 KittyCoin.";
         return;
       }
 
+      // Check enough balance
+      if (amount > balance) {
+        document.getElementById("message").style.color = "red";
+        document.getElementById("message").innerText = "You do not have enough KittyCoins!";
+        return;
+      }
+
+      // Check valid email format
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(toEmail)) {
+        document.getElementById("message").style.color = "red";
+        document.getElementById("message").innerText = "Please enter a valid email address.";
+        return;
+      }
+
+      // Update balance
       balance -= amount;
       localStorage.setItem("balance_" + user, balance);
       document.getElementById("balance").innerText = balance;
       document.getElementById("message").style.color = "green";
       document.getElementById("message").innerText = "Sent " + amount + " KittyCoins to " + toEmail + "!";
+
+      // Clear inputs
+      document.getElementById("toEmail").value = '';
+      document.getElementById("amount").value = '';
     }
 
     function logout() {
