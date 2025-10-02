@@ -8,10 +8,8 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@300..700&display=swap" rel="stylesheet">
     <style>
-        /* Algemene stijlen */
         body {
             font-family: 'Comfortaa', sans-serif;
-            /* Gradiënt achtergrond van de afbeelding */
             background: linear-gradient(135deg, #307cff 0%, #e254ff 100%);
             color: #333;
             margin: 0;
@@ -19,25 +17,22 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 100vh; /* Zorgt ervoor dat de container in het midden van de viewport staat */
+            min-height: 100vh;
         }
 
-        /* Container voor de kaart */
         .container {
             width: 90%;
-            max-width: 550px; /* Bepaalt een maximumbreedte */
+            max-width: 550px;
             padding: 40px;
-            border-radius: 20px; /* Sterk afgeronde hoeken */
+            border-radius: 20px;
             background-color: #fff;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1); /* Subtiele schaduw */
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
             text-align: center;
         }
 
-        /* Titels en tekst */
         h1 {
             font-size: 32px;
             font-weight: 700;
-            color: #333; /* Zwart/Donkergrijs voor de titel */
             margin-bottom: 5px;
         }
 
@@ -46,17 +41,10 @@
             margin-bottom: 30px;
         }
 
-        /* Balans weergave */
         .kittycoin-balance {
             font-size: 26px;
             margin: 30px 0 40px 0;
             font-weight: 500;
-            color: #333;
-        }
-
-        .kittycoin-balance strong {
-            font-weight: 700;
-            /* Lichte nadruk, minder opvallend dan het roze in de originele code */
         }
 
         #balance {
@@ -66,49 +54,43 @@
             margin-right: 5px;
         }
 
-        /* Vorm en invoervelden */
         .trade-form {
             display: flex;
             flex-direction: column;
-            gap: 15px; /* Ruimte tussen de elementen */
+            gap: 15px;
             align-items: center;
         }
 
         input[type="number"],
         input[type="email"] {
-            width: 100%; /* Maakt ze breder */
-            max-width: 250px; /* Beperkt de maximale breedte */
+            width: 100%;
+            max-width: 250px;
             padding: 12px 15px;
             border: 1px solid #ddd;
-            border-radius: 8px; /* Afgeronde hoeken voor de invoervelden */
+            border-radius: 8px;
             font-size: 16px;
             text-align: center;
-            box-sizing: border-box; /* Zorgt ervoor dat padding en border binnen de breedte vallen */
+            box-sizing: border-box;
         }
-        
-        /* Flexibele lay-out voor de twee invoervelden naast elkaar */
+
         .input-group {
             display: flex;
             justify-content: space-between;
             width: 100%;
-            max-width: 520px; /* Zodat de twee velden met gap erin passen */
+            max-width: 520px;
             gap: 20px;
-            margin-bottom: 20px; /* Ruimte boven de knop */
+            margin-bottom: 20px;
         }
 
         .input-group input {
-            width: calc(50% - 10px); /* Ieder veld is de helft min de helft van de gap */
-            margin: 0;
+            width: calc(50% - 10px);
         }
 
-
-        /* Knop stijlen */
         .btn {
             width: 100%;
-            max-width: 300px; /* Maakt de knop breder */
+            max-width: 300px;
             padding: 15px 30px;
-            /* Gradiënt stijl van de knop uit de afbeelding */
-            background: linear-gradient(90deg, #307cff 0%, #e254ff 100%); 
+            background: linear-gradient(90deg, #307cff 0%, #e254ff 100%);
             color: white;
             border: none;
             border-radius: 10px;
@@ -121,7 +103,6 @@
         }
 
         .btn:hover {
-            /* Lichte 'lift' bij hover */
             transform: translateY(-2px);
             box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
         }
@@ -133,7 +114,7 @@
         <p>Send an email to trade KittyCoins!</p>
 
         <div class="kittycoin-balance">
-            You balance is: <span id="balance">100</span> KittyCoins
+            Your balance is: <span id="balance">100</span> KittyCoins
         </div>
 
         <div class="trade-form">
@@ -147,58 +128,59 @@
     </div>
 
     <script>
-        let balance = 100; // Beginbalans van KittyCoins
+        let balance = 100; // startbalans
 
-        // Functie om de KittyCoin balans te updaten
         function updatePage() {
             document.getElementById("balance").textContent = balance;
         }
 
-        // Functie om een trade via Gmail te starten
         function tradeKittyCoins() {
             const amountInput = document.getElementById("kittycoin-amount");
             const receiverEmailInput = document.getElementById("receiver-email");
-            
+
             const amount = parseInt(amountInput.value);
             const receiverEmail = receiverEmailInput.value.trim();
-            
+
+            // Check geldige hoeveelheid
             if (isNaN(amount) || amount <= 0) {
-                alert("Use a valid number of KittyCoins");
+                alert("Enter a valid number of KittyCoins.");
                 return;
             }
 
+            // Mag niet meer dan je balans
             if (amount > balance) {
-                alert("You don't have enough KittyCoins");
+                alert("You don't have enough KittyCoins.");
                 return;
             }
 
-            // Basis e-mailvalidatie toevoegen voor betere gebruikerservaring
+            // Mag niet onder 0 KittyCoins komen
+            if (balance - amount < 0) {
+                alert("You cannot have less than 0 KittyCoins.");
+                return;
+            }
+
+            // Email check
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             if (!emailRegex.test(receiverEmail)) {
-                alert("Use a valid email-adress");
+                alert("Enter a valid email address.");
                 return;
             }
 
-            // Verminder de KittyCoins na de trade
+            // Transactie uitvoeren
             balance -= amount;
 
-            // Maak een mailto-link aan met de details van de transactie
-            // Let op: De body van de mail is aangepast naar de Engelse versie van de originele code, 
-            // met het nieuwe saldo ingevuld.
-            const mailtoLink = `mailto:${receiverEmail}?subject=KittyCoins Transactie&body=Hello,%0A%0AI want to trade ${amount} KittyCoins with you.%0A%0AMy new saldo is ${balance} KittyCoins.%0A%0AKind regards,`;
-            
-            // Open de e-mailclient met de juiste inhoud
+            // Email genereren
+            const mailtoLink = `mailto:${receiverEmail}?subject=KittyCoins Transaction&body=Hello,%0A%0AI want to trade ${amount} KittyCoins with you.%0A%0AMy new balance is ${balance} KittyCoins.%0A%0AKind regards,`;
             window.location.href = mailtoLink;
 
-            // Werk de pagina bij met het nieuwe saldo
+            // Update pagina
             updatePage();
 
-            // Velden leegmaken na succesvolle (start van) transactie
+            // Velden leegmaken
             amountInput.value = '';
             receiverEmailInput.value = '';
         }
 
-        // Initieer de pagina
         updatePage();
     </script>
 </body>
