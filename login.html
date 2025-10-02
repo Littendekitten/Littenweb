@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>KittyCoins Trade with Google Login</title>
+  <title>KittyCoins Trade</title>
+  <!-- Google Login SDK -->
   <script src="https://accounts.google.com/gsi/client" async defer></script>
   <style>
     body {
@@ -24,7 +25,7 @@
       text-align: center;
       max-width: 500px;
       width: 90%;
-      display: none; /* Verborgen tot login */
+      display: none; /* pas zichtbaar na login */
     }
     h1 { margin-bottom: 10px; }
     .kittycoin-balance {
@@ -65,16 +66,15 @@
     <h2>Login met Google om verder te gaan</h2>
     <div id="g_id_onload"
          data-client_id="YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com"
-         data-context="signin"
          data-callback="onLoginSuccess"
          data-auto_prompt="false">
     </div>
-    <div class="g_id_signin" 
-         data-type="standard" 
-         data-shape="rectangular" 
-         data-theme="outline" 
-         data-text="signin_with" 
-         data-size="large" 
+    <div class="g_id_signin"
+         data-type="standard"
+         data-shape="rectangular"
+         data-theme="outline"
+         data-text="signin_with"
+         data-size="large"
          data-logo_alignment="left">
     </div>
   </div>
@@ -121,7 +121,7 @@
         alert("Balance cannot go below 0.");
         return;
       }
-      const emailRegex = /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/;
+      const emailRegex = /^[^\\s@]+@[^\s@]+\\.[^\s@]+$/;
       if (!emailRegex.test(email)) {
         alert("Enter a valid email address.");
         return;
@@ -139,7 +139,7 @@
 
     // Google login callback
     function onLoginSuccess(response) {
-      // Normaal decode je JWT token, maar voor demo laten we direct doorgaan
+      // In een echte app decode je hier de token
       document.getElementById("login-section").style.display = "none";
       document.getElementById("trade-section").style.display = "block";
       updatePage();
