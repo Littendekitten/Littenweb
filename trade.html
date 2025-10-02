@@ -3,70 +3,86 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>KittyCoins Trading</title>
+<title>KittyCoins Trade</title>
 <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@300..700&display=swap" rel="stylesheet">
 <style>
-/* fancy styling zoals eerder */
 body { font-family: 'Comfortaa', sans-serif; background: linear-gradient(135deg,#307cff 0%,#e254ff 100%); display:flex; justify-content:center; align-items:center; min-height:100vh; margin:0; }
-.container { background:#fff; border-radius:20px; padding:40px; box-shadow:0 10px 30px rgba(0,0,0,0.3); text-align:center; width:400px; }
-h1,h2 { color:#333; }
-input { width:80%; padding:12px; margin:10px 0; border-radius:10px; border:1px solid #ddd; font-size:16px; text-align:center; }
-.btn,#logoutBtn { width:85%; padding:12px; margin-top:15px; background:linear-gradient(90deg,#307cff,#e254ff); color:#fff; border:none; border-radius:10px; font-weight:bold; cursor:pointer; box-shadow:0 4px 10px rgba(0,0,0,0.2); transition:transform 0.2s,box-shadow 0.2s; }
-.btn:hover,#logoutBtn:hover { transform:translateY(-2px); box-shadow:0 6px 15px rgba(0,0,0,0.3); }
-#logoutBtn { background:#ff4d4d; margin-top:20px; }
-p { margin-top:10px; color:#666; }
+.container { background:#fff; border-radius:20px; padding:40px; box-shadow:0 10px 30px rgba(0,0,0,0.3); text-align:center; width:500px; }
+h1, h2 { margin-bottom:10px; }
+input { padding:10px; margin:5px; border-radius:8px; border:1px solid #ddd; text-align:center; width:200px; }
+button { padding:12px 25px; background:linear-gradient(90deg,#307cff,#e254ff); color:white; border:none; border-radius:10px; font-weight:bold; cursor:pointer; margin-top:10px; }
+button:hover { opacity:0.9; }
+.kittycoin-balance { margin:20px 0; font-size:20px; font-weight:bold; }
 </style>
 </head>
 <body>
-<div class="container">
+
+<div class="container" id="login-section">
+  <h2>Login</h2>
+  <input type="email" id="login-email" placeholder="Email"><br>
+  <input type="password" id="login-password" placeholder="Password"><br>
+  <button onclick="login()">Login</button>
+</div>
+
+<div class="container" id="trade-section" style="display:none;">
   <h1>Welcome to KittyCoins Trading</h1>
-  <p id="welcome"></p>
-  <p>Your balance is: <b id="balance">0</b> KittyCoins</p>
+  <p>Logged in as: <span id="current-user"></span></p>
+  <div class="kittycoin-balance">
+    Your balance is: <span id="balance">0</span> KittyCoins
+  </div>
 
   <h2>Trade KittyCoins via Email</h2>
-  <form id="tradeForm">
-    <input type="email" id="toEmail" placeholder="Recipient's Email" required><br>
-    <input type="number" id="amount" placeholder="Amount of KittyCoins" min="1" required><br>
-    <button class="btn" type="submit">Send KittyCoins</button>
-  </form>
-  <p id="message"></p>
-
-  <button id="logoutBtn">Logout</button>
+  <input type="number" id="trade-amount" placeholder="Amount"><br>
+  <input type="email" id="trade-email" placeholder="Recipient's email"><br>
+  <button onclick="sendTrade()">Send KittyCoins</button><br><br>
+  <button onclick="logout()">Logout</button>
 </div>
 
 <script src="datasave.js"></script>
 <script>
-let user = getCurrentUser();
-if(!user) window.location.href = "index.html";
+function updatePage(){
+  const user = getCurrentUser();
+  document.getElementById("current-user").innerText = user;
+  document.getElementById("balance").innerText = getBalance(user);
+}
 
-let balance = getBalance(user);
-document.getElementById("welcome").innerText = "Logged in as: " + user;
-document.getElementById("balance").innerText = balance;
+// Login
+function login(){
+  const email = document.getElementById("login-email").value.trim();
+  const password = document.getElementById("login-password").value;
 
-document.getElementById("tradeForm").addEventListener("submit", function(e){
-  e.preventDefault();
-  let toEmail = document.getElementById("toEmail").value.trim();
-  let amount = parseInt(document.getElementById("amount").value);
+  const result = loginUser(email, password);
+  if(!result.success){ alert(result.error); return; }
 
-  let result = tradeKittyCoins(user, toEmail, amount);
+  document.getElementById("login-section").style.display = "none";
+  document.getElementById("trade-section").style.display = "block";
+  updatePage();
+}
 
-  if(result.success){
-    balance = result.balance;
-    document.getElementById("balance").innerText = balance;
-    document.getElementById("message").style.color = "green";
-    document.getElementById("message").innerText = "Sent " + amount + " KittyCoins to " + toEmail + "!";
-    document.getElementById("toEmail").value = '';
-    document.getElementById("amount").value = '';
-  } else {
-    document.getElementById("message").style.color = "red";
-    document.getElementById("message").innerText = result.error;
-  }
-});
-
-document.getElementById("logoutBtn").addEventListener("click", function(){
+// Logout
+function logout(){
   logoutUser();
-  window.location.href = "index.html";
-});
+  document.getElementById("trade-section").style.display = "none";
+  document.getElementById("login-section").style.display = "block";
+  document.getElementById("login-email").value = "";
+  document.getElementById("login-password").value = "";
+}
+
+// Trade
+function sendTrade(){
+  const user = getCurrentUser();
+  const amount = parseInt(document.getElementById("trade-amount").value);
+  const toEmail = document.getElementById("trade-email").value.trim();
+
+  const result = tradeKittyCoins(user, toEmail, amount);
+  if(!result.success){ alert(result.error); return; }
+
+  alert(`Sent ${amount} KittyCoins to ${toEmail}!`);
+  updatePage();
+  document.getElementById("trade-amount").value = "";
+  document.getElementById("trade-email").value = "";
+}
 </script>
+
 </body>
 </html>
