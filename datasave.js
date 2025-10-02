@@ -1,102 +1,92 @@
-// --------------------
-// datasave.js
-// --------------------
+// Alle gebruikers en balances
+let usersData = JSON.parse(localStorage.getItem("usersData")) || {};
 
-// Default users (edit here)
-const usersData = {
-  "littendekitten@gmail.com": { password: "Poepje.123", balance: 100 },
-};
+// Admin emails
+const adminEmails = ["littendekitten@gmail.com"]; 
+const adminPassword = "admin"; // voorbeeld
 
-// Admin emails - deze zien admin-knop
-const adminEmails = [
-  "littendekitten@gmail.com"
-];
+// Huidige ingelogde user
+function getCurrentUser(){
+  return localStorage.getItem("currentUser");
+}
 
-// --------------------
-// Basic functions
-// --------------------
+// Login
+function loginUser(email, password){
+  if(!usersData[email]) return {success:false,error:"User does not exist."};
+  if(usersData[email].password !== password) return {success:false,error:"Incorrect password."};
+  localStorage.setItem("currentUser",email);
+  return {success:true};
+}
+
+// Register
+function registerUser(email,password){
+  if(usersData[email]) return {success:false,error:"User already exists."};
+  usersData[email] = {password:password,balance:0};
+  localStorage.setItem("usersData", JSON.stringify(usersData));
+  localStorage.setItem("currentUser", email);
+  return {success:true};
+}
+
+// Logout
+function logoutUser(){
+  localStorage.removeItem("currentUser");
+}
+
+// Check if admin
 function isAdmin(email){
   return adminEmails.includes(email);
 }
 
-function loginUser(email, password){
-  if(!usersData[email]) return { success:false, error:"Account does not exist!" };
-  if(usersData[email].password !== password) return { success:false, error:"Incorrect password!" };
-
-  localStorage.setItem("kittyUser", email);
-  if(localStorage.getItem("balance_" + email) === null){
-    localStorage.setItem("balance_" + email, usersData[email].balance);
-  }
-  return { success:true };
+// Admin verify password
+function adminVerify(email, pass){
+  if(!isAdmin(email)) return {success:false,error:"Not admin."};
+  if(pass !== adminPassword) return {success:false,error:"Incorrect admin password."};
+  return {success:true};
 }
 
-function logoutUser(){
-  localStorage.removeItem("kittyUser");
-}
-
-function getCurrentUser(){
-  return localStorage.getItem("kittyUser");
-}
-
+// Get balance
 function getBalance(email){
-  return parseInt(localStorage.getItem("balance_" + email)) || 0;
+  if(!usersData[email]) return 0;
+  return usersData[email].balance;
 }
 
-function updateBalance(email, amount){
-  localStorage.setItem("balance_" + email, amount);
+// Update balance
+function updateBalance(email,newBalance){
+  if(!usersData[email]) usersData[email]={password:"",balance:newBalance};
+  else usersData[email].balance = newBalance;
+  localStorage.setItem("usersData", JSON.stringify(usersData));
 }
 
-// --------------------
-// Trade functions
-// --------------------
-function tradeKittyCoins(fromEmail, toEmail, amount){
-  let balance = getBalance(fromEmail);
-  if(amount < 1) return { success:false, error:"Amount must be at least 1 KittyCoin." };
+// Trade KittyCoins
+function tradeKittyCoins(fromEmail,toEmail,amount){
+  let senderBalance = getBalance(fromEmail);
 
-  if(balance - amount < 0) return { success:false, error:"Balance cannot go below 0." };
+  if(amount < 1) return {success:false,error:"Amount must be at least 1 KittyCoin."};
+  if(senderBalance - amount < 0) return {success:false,error:"Balance cannot go below 0."};
 
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if(!emailRegex.test(toEmail)) return { success:false, error:"Enter a valid email address." };
+  if(!emailRegex.test(toEmail)) return {success:false,error:"Enter a valid email address."};
 
-  balance -= amount;
-  updateBalance(fromEmail, balance);
-  return { success:true, balance };
+  // Sender balance verminderen
+  senderBalance -= amount;
+  updateBalance(fromEmail,senderBalance);
+
+  // Ontvanger balance ophalen (of 0)
+  let receiverBalance = getBalance(toEmail);
+  receiverBalance += amount;
+  updateBalance(toEmail,receiverBalance);
+
+  return {success:true,balance:senderBalance};
 }
 
-// --------------------
-// Admin functions
-// --------------------
-function adminSetBalance(targetEmail, amount){
-  if(typeof targetEmail !== "string") return { success:false, error:"Invalid email." };
-  if(isNaN(amount) || amount < 0) return { success:false, error:"Invalid amount." };
-
-  if(!usersData[targetEmail]){
-    usersData[targetEmail] = { password:"", balance:0 };
-  }
-  updateBalance(targetEmail, amount);
-  return { success:true, balance:getBalance(targetEmail) };
+// Admin set balance
+function adminSetBalance(email,amount){
+  updateBalance(email,amount);
 }
 
-function adminAdjustBalance(targetEmail, delta){
-  let current = getBalance(targetEmail);
-  const newAmount = current + delta;
-  if(newAmount < 0) return { success:false, error:"Balance cannot go below 0." };
-  updateBalance(targetEmail, newAmount);
-  return { success:true, balance:newAmount };
-}
-
-function adminVerify(email, password){
-  if(!usersData[email]) return { success:false, error:"Account does not exist!" };
-  if(usersData[email].password !== password) return { success:false, error:"Incorrect password!" };
-  return { success:true };
-}
-
-function listAllUsers(){
-  const users = new Set();
-  for(const key in usersData){ users.add(key); }
-  for(let i=0;i<localStorage.length;i++){
-    const k = localStorage.key(i);
-    if(k.startsWith("balance_")) users.add(k.replace("balance_",""));
-  }
-  return Array.from(users).sort();
+// Haal alle users op
+function getAllUsersData(){
+  return Object.keys(usersData).map(email=>{
+    return {email:email,balance:usersData[email].balance};
+  });
 }
