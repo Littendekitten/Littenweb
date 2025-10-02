@@ -1,2 +1,7 @@
-image-config
-Don't delete this file!
+<config href:"images.map>
+  <href:"#">
+  <href:"main/images/image-config.txt">
+    <div: config-images>
+</config>
+
+DON'T DELETE THIS FILE!!!
