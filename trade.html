@@ -6,13 +6,14 @@
 <title>KittyCoins Trading</title>
 <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@300..700&display=swap" rel="stylesheet">
 <style>
-body{font-family:'Comfortaa',sans-serif; background:linear-gradient(135deg,#307cff,#e254ff); color:#333; display:flex; justify-content:center; align-items:center; min-height:100vh; margin:0;}
-.container{background:#fff; padding:30px; border-radius:20px; text-align:center; box-shadow:0 10px 30px rgba(0,0,0,0.2); width:90%; max-width:550px;}
-input{padding:10px; margin:6px; border-radius:8px; border:1px solid #ddd; width:calc(50% - 10px); text-align:center;}
-button{padding:12px 20px; margin:5px; background:linear-gradient(90deg,#307cff,#e254ff); color:#fff; border:none; border-radius:10px; font-weight:700; cursor:pointer;}
+body{font-family:'Comfortaa',sans-serif;background:linear-gradient(135deg,#307cff,#e254ff);color:#333;display:flex;justify-content:center;align-items:center;min-height:100vh;margin:0;}
+.container{background:#fff;padding:30px;border-radius:20px;text-align:center;box-shadow:0 10px 30px rgba(0,0,0,0.2);width:90%;max-width:600px;}
+input{padding:10px;margin:6px;border-radius:8px;border:1px solid #ddd;width:calc(50% - 10px);text-align:center;}
+button{padding:12px 20px;margin:5px;background:linear-gradient(90deg,#307cff,#e254ff);color:#fff;border:none;border-radius:10px;font-weight:700;cursor:pointer;}
 #message{margin-top:12px;}
-table{border-collapse:collapse; width:100%; margin-top:10px;}
-th,td{border:1px solid #aaa; padding:5px; text-align:center;}
+table{border-collapse:collapse;width:100%;margin-top:10px;}
+th,td{border:1px solid #aaa;padding:5px;text-align:center;}
+h2{margin-top:20px;}
 </style>
 </head>
 <body>
@@ -33,12 +34,19 @@ th,td{border:1px solid #aaa; padding:5px; text-align:center;}
 
 <!-- Admin panel -->
 <div id="adminPanel" style="display:none; margin-top:20px; border:1px solid #aaa; padding:10px; border-radius:8px;">
-  <h2>Admin Panel</h2>
+  <h2>Users Overview</h2>
   <table id="usersTable">
     <tr>
       <th>Email</th>
       <th>Balance</th>
       <th>Actions</th>
+    </tr>
+  </table>
+  <h2>Admin Users</h2>
+  <table id="adminTable">
+    <tr>
+      <th>Email</th>
+      <th>Balance</th>
     </tr>
   </table>
 </div>
@@ -55,9 +63,7 @@ if(!current){ window.location.href="index.html"; }
 
 welcomeText.innerText = "Logged in as: " + current;
 
-function updateBalanceUI(){
-  balanceSpan.innerText = getBalance(current);
-}
+function updateBalanceUI(){ balanceSpan.innerText = getBalance(current); }
 updateBalanceUI();
 
 // Trade KittyCoins
@@ -73,16 +79,13 @@ document.getElementById("tradeBtn").addEventListener("click", ()=>{
   document.getElementById("kittyEmail").value="";
 });
 
-// Logout
+// Logout button
 const logoutBtn = document.createElement("button");
-logoutBtn.innerText = "Logout";
-logoutBtn.onclick = ()=>{
-  logoutUser();
-  window.location.href="index.html";
-};
+logoutBtn.innerText="Logout";
+logoutBtn.onclick = ()=>{ logoutUser(); window.location.href="index.html"; };
 document.body.appendChild(logoutBtn);
 
-// Admin button show
+// Admin button
 const adminBtn = document.getElementById("adminBtn");
 if(isAdmin(current)){
   adminBtn.style.display="inline-block";
@@ -97,16 +100,21 @@ if(isAdmin(current)){
 // Admin panel functions
 function showAdminPanel(){
   const panel = document.getElementById("adminPanel");
-  const table = document.getElementById("usersTable");
-  table.querySelectorAll("tr:not(:first-child)").forEach(r=>r.remove());
+  const usersTable = document.getElementById("usersTable");
+  const adminTable = document.getElementById("adminTable");
 
-  const allUsers = getAllUsersData();
-  allUsers.forEach(user=>{
-    const row = table.insertRow();
+  // Clear previous
+  usersTable.querySelectorAll("tr:not(:first-child)").forEach(r=>r.remove());
+  adminTable.querySelectorAll("tr:not(:first-child)").forEach(r=>r.remove());
+
+  const allData = getAllUsersData();
+
+  allData.normalUsers.forEach(user=>{
+    const row = usersTable.insertRow();
     row.insertCell(0).innerText = user.email;
     row.insertCell(1).innerText = user.balance;
-
     const actionsCell = row.insertCell(2);
+
     const adjBtn = document.createElement("button");
     adjBtn.innerText="Adjust";
     adjBtn.onclick = ()=>{
@@ -123,13 +131,19 @@ function showAdminPanel(){
     delBtn.onclick = ()=>{
       if(confirm(`Delete ${user.email}?`)){
         delete usersData[user.email];
-        localStorage.setItem("usersData", JSON.stringify(usersData));
+        saveUsers();
         updateBalanceUI();
         showAdminPanel();
       }
     };
     actionsCell.appendChild(adjBtn);
     actionsCell.appendChild(delBtn);
+  });
+
+  allData.adminUsers.forEach(admin=>{
+    const row = adminTable.insertRow();
+    row.insertCell(0).innerText = admin.email;
+    row.insertCell(1).innerText = admin.balance;
   });
 
   panel.style.display="block";
