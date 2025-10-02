@@ -1,74 +1,232 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>KittyCoins Trade</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>KittyCoins Trade (with Admin)</title>
 <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@300..700&display=swap" rel="stylesheet">
 <style>
-body { font-family: 'Comfortaa', sans-serif; background: linear-gradient(135deg,#307cff 0%,#e254ff 100%); display:flex; justify-content:center; align-items:center; min-height:100vh; margin:0; }
-.container { background:#fff; border-radius:20px; padding:40px; box-shadow:0 10px 30px rgba(0,0,0,0.3); text-align:center; width:500px; }
-h1, h2 { margin-bottom:10px; }
-input { padding:10px; margin:5px; border-radius:8px; border:1px solid #ddd; text-align:center; width:200px; }
-button { padding:12px 25px; background:linear-gradient(90deg,#307cff,#e254ff); color:white; border:none; border-radius:10px; font-weight:bold; cursor:pointer; margin-top:10px; }
-button:hover { opacity:0.9; }
-.kittycoin-balance { margin:20px 0; font-size:20px; font-weight:bold; }
+  body { font-family: 'Comfortaa', sans-serif; background: linear-gradient(135deg,#307cff 0%,#e254ff 100%); display:flex; justify-content:center; align-items:center; min-height:100vh; margin:0; }
+  .container { background:#fff; border-radius:20px; padding:30px; box-shadow:0 10px 30px rgba(0,0,0,0.25); text-align:center; width:520px; }
+  h1 { margin-bottom:6px; }
+  .kit-balance { font-size:20px; font-weight:700; margin:12px 0 18px; }
+  input { padding:10px; margin:6px; border-radius:8px; border:1px solid #ddd; width:220px; text-align:center; }
+  button { padding:12px 20px; margin-top:10px; background:linear-gradient(90deg,#307cff,#e254ff); color:#fff; border:none; border-radius:10px; font-weight:700; cursor:pointer; }
+  button.secondary { background:#ff4d4d; }
+  #adminBtn { margin-left:8px; background:linear-gradient(90deg,#ff8a00,#ff4d4d); }
+  #message { margin-top:12px; }
+  /* admin panel modal */
+  .modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); justify-content:center; align-items:center; }
+  .modal .panel { background:#fff; padding:20px; border-radius:12px; width:460px; text-align:left; box-shadow:0 8px 30px rgba(0,0,0,0.3); }
+  .modal .panel h3 { margin-top:0; }
+  .row { display:flex; gap:10px; align-items:center; margin:8px 0; }
+  .row select, .row input { flex:1; }
+  .small { width:120px; }
 </style>
 </head>
 <body>
 
-<div class="container" id="trade-section">
+<div class="container">
   <h1>Welcome to KittyCoins Trading</h1>
-  <p>Logged in as: <span id="current-user"></span></p>
-  <div class="kittycoin-balance">
-    Your balance is: <span id="balance">0</span> KittyCoins
-  </div>
+  <p>Logged in as: <span id="currentUser">-</span></p>
+  <div class="kit-balance">Your balance is: <span id="balance">0</span> KittyCoins</div>
 
-  <h2>Trade KittyCoins via Email</h2>
-  <input type="number" id="trade-amount" placeholder="Amount"><br>
-  <input type="email" id="trade-email" placeholder="Recipient's email"><br>
-  <button onclick="sendTrade()">Send KittyCoins</button><br><br>
-  <button onclick="logout()">Logout</button>
+  <h3>Trade KittyCoins via Email</h3>
+  <input id="amt" type="number" placeholder="Amount (min 1)" min="1"><br>
+  <input id="toEmail" type="email" placeholder="Recipient's email"><br>
+  <button id="sendBtn">Send KittyCoins</button>
+  <button id="logoutBtn" class="secondary">Logout</button>
+  <button id="adminBtn" style="display:none;">Admin Panel</button>
+
+  <div id="message"></div>
+</div>
+
+<!-- Admin modal -->
+<div id="adminModal" class="modal">
+  <div class="panel">
+    <h3>Admin Panel (re-auth required)</h3>
+    <div id="adminStep1">
+      <p>Enter your admin password to continue:</p>
+      <div class="row">
+        <input id="adminPass" type="password" placeholder="Admin password">
+        <button id="adminAuthBtn">Verify</button>
+      </div>
+      <div id="adminAuthMsg"></div>
+    </div>
+
+    <div id="adminStep2" style="display:none;">
+      <p>Manage user balances:</p>
+      <div class="row">
+        <select id="adminUserSelect"></select>
+        <button id="refreshUsers">Refresh</button>
+      </div>
+
+      <div class="row">
+        <input id="setBalanceInput" type="number" placeholder="Set balance to (>=0)" min="0">
+        <button id="setBalanceBtn">Set</button>
+      </div>
+
+      <div class="row">
+        <input id="adjustAmountInput" type="number" placeholder="Adjust by (use negative to subtract)">
+        <button id="adjustBalanceBtn">Apply</button>
+      </div>
+
+      <div class="row">
+        <input id="minBalanceInput" type="number" placeholder="Set min allowed balance (>=0)" min="0">
+        <button id="setMinBtn">Set min</button>
+      </div>
+
+      <div style="margin-top:12px;">
+        <button id="closeAdmin">Close</button>
+      </div>
+
+      <div id="adminResult" style="margin-top:8px;"></div>
+    </div>
+  </div>
 </div>
 
 <script src="datasave.js"></script>
 <script>
-// Laat direct de huidige user zien
-function updatePage(){
-  const user = getCurrentUser();
-  if(!user){
-    alert("You are not logged in! Go back to the login page.");
-    window.location.href = "index.html"; // stuurt terug naar login
-    return;
+  // init
+  function showMessage(text, ok=true){
+    const el = document.getElementById("message");
+    el.style.color = ok ? "green" : "red";
+    el.innerText = text;
+    setTimeout(()=>{ if(el.innerText===text) el.innerText=''; }, 4000);
   }
-  document.getElementById("current-user").innerText = user;
-  document.getElementById("balance").innerText = getBalance(user);
-}
 
-// Trade
-function sendTrade(){
-  const user = getCurrentUser();
-  const amount = parseInt(document.getElementById("trade-amount").value);
-  const toEmail = document.getElementById("trade-email").value.trim();
+  function updatePage(){
+    const user = getCurrentUser();
+    if(!user) {
+      // not logged in -> redirect to index
+      window.location.href = "index.html";
+      return;
+    }
+    document.getElementById("currentUser").innerText = user;
+    document.getElementById("balance").innerText = getBalance(user);
 
-  const result = tradeKittyCoins(user, toEmail, amount);
-  if(!result.success){ alert(result.error); return; }
+    // show admin button if user is admin
+    if(isAdmin(user)){
+      document.getElementById("adminBtn").style.display = "inline-block";
+    } else {
+      document.getElementById("adminBtn").style.display = "none";
+    }
+  }
 
-  alert(`Sent ${amount} KittyCoins to ${toEmail}!`);
+  // trade action
+  document.getElementById("sendBtn").addEventListener("click", ()=>{
+    const user = getCurrentUser();
+    const to = document.getElementById("toEmail").value.trim();
+    const amount = parseInt(document.getElementById("amt").value);
+    const result = tradeKittyCoins(user, to, amount);
+    if(!result.success){
+      showMessage(result.error, false);
+      return;
+    }
+    showMessage(`Sent ${amount} KittyCoins to ${to}.`);
+    updatePage();
+    document.getElementById("toEmail").value = "";
+    document.getElementById("amt").value = "";
+  });
+
+  // logout
+  document.getElementById("logoutBtn").addEventListener("click", ()=>{
+    logoutUser();
+    window.location.href = "index.html";
+  });
+
+  // Admin modal handling
+  const adminModal = document.getElementById("adminModal");
+  document.getElementById("adminBtn").addEventListener("click", ()=>{
+    adminModal.style.display = "flex";
+    // show step1
+    document.getElementById("adminStep1").style.display = "block";
+    document.getElementById("adminStep2").style.display = "none";
+    document.getElementById("adminAuthMsg").innerText = "";
+    document.getElementById("adminPass").value = "";
+    document.getElementById("adminResult").innerText = "";
+  });
+
+  document.getElementById("closeAdmin").addEventListener("click", ()=> {
+    adminModal.style.display = "none";
+  });
+
+  // Admin verify
+  document.getElementById("adminAuthBtn").addEventListener("click", ()=>{
+    const user = getCurrentUser();
+    const pass = document.getElementById("adminPass").value;
+    const res = adminVerify(user, pass);
+    if(!res.success){
+      document.getElementById("adminAuthMsg").style.color = "red";
+      document.getElementById("adminAuthMsg").innerText = res.error;
+      return;
+    }
+    // success
+    document.getElementById("adminStep1").style.display = "none";
+    document.getElementById("adminStep2").style.display = "block";
+    document.getElementById("adminAuthMsg").innerText = "";
+    populateAdminUsers();
+  });
+
+  function populateAdminUsers(){
+    const sel = document.getElementById("adminUserSelect");
+    sel.innerHTML = "";
+    const users = listAllUsers();
+    users.forEach(u=>{
+      const opt = document.createElement("option");
+      opt.value = u;
+      opt.innerText = u;
+      sel.appendChild(opt);
+    });
+  }
+
+  document.getElementById("refreshUsers").addEventListener("click", populateAdminUsers);
+
+  // set balance direct
+  document.getElementById("setBalanceBtn").addEventListener("click", ()=>{
+    const target = document.getElementById("adminUserSelect").value;
+    const val = parseInt(document.getElementById("setBalanceInput").value);
+    if(isNaN(val) || val < 0){ document.getElementById("adminResult").innerText = "Enter a valid amount >= 0"; return; }
+    const res = adminSetBalance(target, val);
+    if(!res.success) document.getElementById("adminResult").innerText = res.error;
+    else {
+      document.getElementById("adminResult").style.color = "green";
+      document.getElementById("adminResult").innerText = `Balance for ${target} set to ${res.balance}.`;
+      updatePage();
+    }
+  });
+
+  // adjust balance (delta)
+  document.getElementById("adjustBalanceBtn").addEventListener("click", ()=>{
+    const target = document.getElementById("adminUserSelect").value;
+    const delta = parseInt(document.getElementById("adjustAmountInput").value);
+    if(isNaN(delta)){ document.getElementById("adminResult").innerText = "Enter a valid number."; return; }
+    const res = adminAdjustBalance(target, delta);
+    if(!res.success) document.getElementById("adminResult").innerText = res.error;
+    else {
+      document.getElementById("adminResult").style.color = "green";
+      document.getElementById("adminResult").innerText = `New balance for ${target}: ${res.balance}.`;
+      updatePage();
+    }
+  });
+
+  // set minimum allowed balance
+  document.getElementById("setMinBtn").addEventListener("click", ()=>{
+    const target = document.getElementById("adminUserSelect").value;
+    const minVal = parseInt(document.getElementById("minBalanceInput").value);
+    if(isNaN(minVal) || minVal < 0){ document.getElementById("adminResult").innerText = "Enter a valid minimum >= 0"; return; }
+    setMinBalance(target, minVal);
+    document.getElementById("adminResult").style.color = "green";
+    document.getElementById("adminResult").innerText = `Min balance for ${target} set to ${minVal}.`;
+  });
+
+  // close modal when clicking outside panel
+  adminModal.addEventListener("click", (e)=>{
+    if(e.target === adminModal) adminModal.style.display = "none";
+  });
+
+  // initial update
   updatePage();
-  document.getElementById("trade-amount").value = "";
-  document.getElementById("trade-email").value = "";
-}
-
-// Logout
-function logout(){
-  logoutUser();
-  window.location.href = "index.html"; // terug naar login
-}
-
-// Init
-updatePage();
 </script>
-
 </body>
 </html>
