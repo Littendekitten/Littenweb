@@ -4,7 +4,7 @@
 
 // Default users (edit here)
 const usersData = {
-
+"littendekitten@gmail.com": { password: "Poepje.123", balance: 100 },
 };
 
 // Admin emails - voeg hier admins toe
