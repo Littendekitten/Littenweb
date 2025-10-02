@@ -26,7 +26,6 @@ th,td{border:1px solid #aaa; padding:5px; text-align:center;}
   <input type="email" id="kittyEmail" placeholder="Recipient's Email">
 </div>
 <button id="tradeBtn">Send KittyCoins</button>
-
 <div id="message"></div>
 
 <!-- Admin button -->
@@ -54,10 +53,8 @@ const welcomeText = document.getElementById("welcomeText");
 const current = getCurrentUser();
 if(!current){ window.location.href="index.html"; }
 
-// show welcome
 welcomeText.innerText = "Logged in as: " + current;
 
-// show balance
 function updateBalanceUI(){
   balanceSpan.innerText = getBalance(current);
 }
@@ -76,7 +73,7 @@ document.getElementById("tradeBtn").addEventListener("click", ()=>{
   document.getElementById("kittyEmail").value="";
 });
 
-// Logout function
+// Logout
 const logoutBtn = document.createElement("button");
 logoutBtn.innerText = "Logout";
 logoutBtn.onclick = ()=>{
@@ -101,8 +98,7 @@ if(isAdmin(current)){
 function showAdminPanel(){
   const panel = document.getElementById("adminPanel");
   const table = document.getElementById("usersTable");
-  // remove old rows
-  table.querySelectorAll("tr:not(:first-child)").forEach(r => r.remove());
+  table.querySelectorAll("tr:not(:first-child)").forEach(r=>r.remove());
 
   const allUsers = getAllUsersData();
   allUsers.forEach(user=>{
@@ -111,9 +107,8 @@ function showAdminPanel(){
     row.insertCell(1).innerText = user.balance;
 
     const actionsCell = row.insertCell(2);
-
     const adjBtn = document.createElement("button");
-    adjBtn.innerText = "Adjust";
+    adjBtn.innerText="Adjust";
     adjBtn.onclick = ()=>{
       const amt = parseInt(prompt(`Enter new balance for ${user.email}:`));
       if(!isNaN(amt) && amt>=0){
@@ -123,12 +118,12 @@ function showAdminPanel(){
       }
     };
     const delBtn = document.createElement("button");
-    delBtn.innerText = "Delete";
+    delBtn.innerText="Delete";
     delBtn.style.marginLeft="5px";
     delBtn.onclick = ()=>{
       if(confirm(`Delete ${user.email}?`)){
-        localStorage.removeItem("balance_" + user.email);
         delete usersData[user.email];
+        localStorage.setItem("usersData", JSON.stringify(usersData));
         updateBalanceUI();
         showAdminPanel();
       }
