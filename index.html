@@ -2,41 +2,70 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>KittyCoins Login</title>
+  <title>KittyCoins Trading</title>
   <style>
-    body { font-family: Arial, sans-serif; background: #f2f2f2; text-align: center; padding-top: 100px; }
-    .login-box { background: white; padding: 20px; border-radius: 10px; display: inline-block; box-shadow: 0 0 10px rgba(0,0,0,0.2); }
+    body { font-family: Arial, sans-serif; background: #e9f7ff; text-align: center; padding-top: 50px; }
+    .box { background: white; padding: 20px; border-radius: 10px; display: inline-block; box-shadow: 0 0 10px rgba(0,0,0,0.2); }
     input { margin: 10px; padding: 10px; width: 200px; }
-    button { padding: 10px 20px; }
+    button { padding: 10px 20px; margin-top: 10px; cursor: pointer; }
+    #logoutBtn { background: #ff4d4d; color: white; border: none; border-radius: 5px; margin-top: 20px; }
+    #logoutBtn:hover { opacity: 0.9; }
   </style>
 </head>
 <body>
-  <div class="login-box">
-    <h1>Login to KittyCoins</h1>
-    <form onsubmit="login(event)">
-      <input type="email" id="email" placeholder="Email" required><br>
-      <input type="password" id="password" placeholder="Password" required><br>
-      <button type="submit">Login</button>
+  <div class="box">
+    <h1>Welcome to KittyCoins Trading</h1>
+    <p id="welcome"></p>
+    <p>Your balance is: <b id="balance">0</b> KittyCoins</p>
+
+    <h2>Trade KittyCoins through Email</h2>
+    <form onsubmit="trade(event)">
+      <input type="email" id="toEmail" placeholder="Recipient's Email" required><br>
+      <input type="number" id="amount" placeholder="Amount of KittyCoins" min="1" required><br>
+      <button type="submit">Send KittyCoins</button>
     </form>
-    <p id="error" style="color:red;"></p>
+    <p id="message" style="color:green;"></p>
+
+    <button id="logoutBtn" onclick="logout()">Logout</button>
   </div>
 
   <script>
-    function login(event) {
+    // check login
+    let user = localStorage.getItem("kittyUser");
+    let coins = parseInt(localStorage.getItem("kittyCoins")) || 0;
+
+    if (!user) {
+      window.location.href = "index.html";
+    }
+
+    document.getElementById("welcome").innerText = "Logged in as: " + user;
+    document.getElementById("balance").innerText = coins;
+
+    function trade(event) {
       event.preventDefault();
+      let toEmail = document.getElementById("toEmail").value;
+      let amount = parseInt(document.getElementById("amount").value);
 
-      let email = document.getElementById("email").value;
-      let password = document.getElementById("password").value;
+      let currentCoins = parseInt(localStorage.getItem("kittyCoins"));
 
-      // Simple fake check (jij kan dit zelf aanpassen)
-      if (email && password) {
-        // save login
-        localStorage.setItem("kittyUser", email);
-        localStorage.setItem("kittyCoins", 100); // start balance
-        window.location.href = "trade.html";
-      } else {
-        document.getElementById("error").innerText = "Invalid login!";
+      if (amount > currentCoins) {
+        document.getElementById("message").style.color = "red";
+        document.getElementById("message").innerText = "Not enough KittyCoins!";
+        return;
       }
+
+      currentCoins -= amount;
+      localStorage.setItem("kittyCoins", currentCoins);
+      document.getElementById("balance").innerText = currentCoins;
+
+      document.getElementById("message").style.color = "green";
+      document.getElementById("message").innerText = "Successfully sent " + amount + " KittyCoins to " + toEmail + "!";
+    }
+
+    function logout() {
+      localStorage.removeItem("kittyUser");
+      localStorage.removeItem("kittyCoins"); // optioneel: reset balance bij logout
+      window.location.href = "index.html";
     }
   </script>
 </body>
