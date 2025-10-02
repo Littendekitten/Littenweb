@@ -2,100 +2,41 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>KittyCoins - Login</title>
+  <title>KittyCoins Login</title>
   <style>
-    body {
-      font-family: 'Comfortaa', sans-serif;
-      background: linear-gradient(135deg, #307cff 0%, #e254ff 100%);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      margin: 0;
-    }
-    .login-box {
-      background: #fff;
-      padding: 30px;
-      border-radius: 15px;
-      box-shadow: 0 8px 25px rgba(0,0,0,0.2);
-      width: 300px;
-      text-align: center;
-    }
-    input {
-      width: 100%;
-      padding: 10px;
-      margin: 8px 0;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-    }
-    button {
-      width: 100%;
-      padding: 12px;
-      background: linear-gradient(90deg, #307cff, #e254ff);
-      border: none;
-      color: #fff;
-      font-weight: bold;
-      border-radius: 8px;
-      cursor: pointer;
-    }
-    button:hover {
-      opacity: 0.9;
-    }
+    body { font-family: Arial, sans-serif; background: #f2f2f2; text-align: center; padding-top: 100px; }
+    .login-box { background: white; padding: 20px; border-radius: 10px; display: inline-block; box-shadow: 0 0 10px rgba(0,0,0,0.2); }
+    input { margin: 10px; padding: 10px; width: 200px; }
+    button { padding: 10px 20px; }
   </style>
 </head>
 <body>
   <div class="login-box">
-    <h2>Login to KittyCoins</h2>
-    <input type="email" id="email" placeholder="Email">
-    <input type="password" id="password" placeholder="Password">
-    <button onclick="login()">Login</button>
-    <p>No account yet? <a href="#" onclick="register()">Register</a></p>
+    <h1>Login to KittyCoins</h1>
+    <form onsubmit="login(event)">
+      <input type="email" id="email" placeholder="Email" required><br>
+      <input type="password" id="password" placeholder="Password" required><br>
+      <button type="submit">Login</button>
+    </form>
+    <p id="error" style="color:red;"></p>
   </div>
 
   <script>
-    function login() {
-      const email = document.getElementById("email").value.trim();
-      const password = document.getElementById("password").value;
+    function login(event) {
+      event.preventDefault();
 
-      if (!email || !password) {
-        alert("Please fill in both email and password.");
-        return;
-      }
+      let email = document.getElementById("email").value;
+      let password = document.getElementById("password").value;
 
-      // Check if user exists
-      const storedPassword = localStorage.getItem("user_" + email);
-      if (storedPassword === password) {
-        localStorage.setItem("kittycoins_loggedin", email);
-
-        // If no balance yet, set default 100
-        if (!localStorage.getItem("balance_" + email)) {
-          localStorage.setItem("balance_" + email, 100);
-        }
-
+      // Simple fake check (jij kan dit zelf aanpassen)
+      if (email && password) {
+        // save login
+        localStorage.setItem("kittyUser", email);
+        localStorage.setItem("kittyCoins", 100); // start balance
         window.location.href = "trade.html";
       } else {
-        alert("Incorrect login details.");
+        document.getElementById("error").innerText = "Invalid login!";
       }
-    }
-
-    function register() {
-      const email = document.getElementById("email").value.trim();
-      const password = document.getElementById("password").value;
-
-      if (!email || !password) {
-        alert("Please enter email and password to register.");
-        return;
-      }
-
-      if (localStorage.getItem("user_" + email)) {
-        alert("Account already exists!");
-        return;
-      }
-
-      localStorage.setItem("user_" + email, password);
-      localStorage.setItem("balance_" + email, 100); // new users start with 100 coins
-      alert("Account created! You can now log in.");
     }
   </script>
 </body>
