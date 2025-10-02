@@ -4,29 +4,31 @@
 
 // Default users (edit here)
 const usersData = {
-"littendekitten@gmail.com": { password: "Poepje.123", balance: 100 },
+  "littendekitten@gmail.com": { password: "Poepje.123", balance: 100 },
 };
 
-// Admin emails - voeg hier admins toe
+// Admin emails - deze zien admin-knop
 const adminEmails = [
-  "littendekitten@gmail.com" // voorbeeld: deze email is admin
+  "littendekitten@gmail.com"
 ];
 
-// --- Basic data functions ---
+// --------------------
+// Basic functions
+// --------------------
 
-function isAdmin(email) {
+function isAdmin(email){
   return adminEmails.includes(email);
 }
 
 function loginUser(email, password){
-  if(!usersData[email]) return { success: false, error: "Account does not exist!" };
-  if(usersData[email].password !== password) return { success: false, error: "Incorrect password!" };
+  if(!usersData[email]) return { success:false, error:"Account does not exist!" };
+  if(usersData[email].password !== password) return { success:false, error:"Incorrect password!" };
 
-  localStorage.setItem("kittyUser", email); // session
+  localStorage.setItem("kittyUser", email);
   if(localStorage.getItem("balance_" + email) === null){
     localStorage.setItem("balance_" + email, usersData[email].balance);
   }
-  return { success: true };
+  return { success:true };
 }
 
 function logoutUser(){
@@ -45,86 +47,57 @@ function updateBalance(email, amount){
   localStorage.setItem("balance_" + email, amount);
 }
 
-// min balance per user (optional)
-// stored as "min_balance_email" in localStorage
-function getMinBalance(email){
-  return parseInt(localStorage.getItem("min_balance_" + email)) || 0;
-}
-function setMinBalance(email, minAmount){
-  localStorage.setItem("min_balance_" + email, minAmount);
-}
-
-// Trade function (normal users)
+// --------------------
+// Trade functions
+// --------------------
 function tradeKittyCoins(fromEmail, toEmail, amount){
   let balance = getBalance(fromEmail);
-  if(amount < 1) return { success: false, error: "Amount must be at least 1 KittyCoin." };
+  if(amount < 1) return { success:false, error:"Amount must be at least 1 KittyCoin." };
 
-  const minAllowed = getMinBalance(fromEmail);
-  if(balance - amount < minAllowed) return { success: false, error: `You must keep at least ${minAllowed} KittyCoins.` };
-
-  if(amount > balance) return { success: false, error: "Not enough KittyCoins." };
+  if(balance - amount < 0) return { success:false, error:"Balance cannot go below 0." };
 
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if(!emailRegex.test(toEmail)) return { success: false, error: "Enter a valid email address." };
+  if(!emailRegex.test(toEmail)) return { success:false, error:"Enter a valid email address." };
 
-  // subtract from sender
   balance -= amount;
   updateBalance(fromEmail, balance);
-
-  // optionally add to recipient if you want:
-  // let recBalance = getBalance(toEmail);
-  // updateBalance(toEmail, recBalance + amount);
-
-  return { success: true, balance };
+  return { success:true, balance };
 }
 
-// --- Admin functions ---
-
-// Set a user's balance directly (admin)
+// --------------------
+// Admin functions
+// --------------------
 function adminSetBalance(targetEmail, amount){
-  if(typeof targetEmail !== "string") return { success: false, error: "Invalid email." };
-  if(isNaN(amount) || amount < 0) return { success: false, error: "Invalid amount." };
+  if(typeof targetEmail !== "string") return { success:false, error:"Invalid email." };
+  if(isNaN(amount) || amount < 0) return { success:false, error:"Invalid amount." };
 
-  // ensure user exists in usersData or create minimal entry
   if(!usersData[targetEmail]){
-    // create a placeholder user entry if you want
-    usersData[targetEmail] = { password: "", balance: 0 };
+    usersData[targetEmail] = { password:"", balance:0 };
   }
   updateBalance(targetEmail, amount);
-  return { success: true, balance: getBalance(targetEmail) };
+  return { success:true, balance:getBalance(targetEmail) };
 }
 
-// Adjust user's balance by delta (admin subtract/add)
 function adminAdjustBalance(targetEmail, delta){
   let current = getBalance(targetEmail);
-  const minAllowed = getMinBalance(targetEmail);
   const newAmount = current + delta;
-  if(newAmount < minAllowed) return { success: false, error: `Cannot set balance below min (${minAllowed}).` };
-  if(newAmount < 0) return { success: false, error: "Balance cannot go below 0." };
+  if(newAmount < 0) return { success:false, error:"Balance cannot go below 0." };
   updateBalance(targetEmail, newAmount);
-  return { success: true, balance: newAmount };
+  return { success:true, balance:newAmount };
 }
 
-// Admin verify password (for re-auth)
 function adminVerify(email, password){
-  if(!usersData[email]) return { success: false, error: "Account does not exist!" };
-  if(usersData[email].password !== password) return { success: false, error: "Incorrect password!" };
-  return { success: true };
+  if(!usersData[email]) return { success:false, error:"Account does not exist!" };
+  if(usersData[email].password !== password) return { success:false, error:"Incorrect password!" };
+  return { success:true };
 }
 
-// Helper: list all users known (from usersData or localStorage balances)
 function listAllUsers(){
   const users = new Set();
-  // from usersData
-  for(const key in usersData){
-    users.add(key);
-  }
-  // from localStorage balances
+  for(const key in usersData){ users.add(key); }
   for(let i=0;i<localStorage.length;i++){
     const k = localStorage.key(i);
-    if(k.startsWith("balance_")){
-      users.add(k.replace("balance_",""));
-    }
+    if(k.startsWith("balance_")) users.add(k.replace("balance_",""));
   }
   return Array.from(users).sort();
 }
