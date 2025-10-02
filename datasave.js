@@ -15,7 +15,6 @@ const adminEmails = [
 // --------------------
 // Basic functions
 // --------------------
-
 function isAdmin(email){
   return adminEmails.includes(email);
 }
